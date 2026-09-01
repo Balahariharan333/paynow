@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_bloc.dart';
@@ -108,7 +108,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       .toList();
 
                   return ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0)),
+                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                    padding: EdgeInsets.only(
+                      left: Responsive.w(20.0),
+                      right: Responsive.w(20.0),
+                      top: Responsive.h(4.0),
+                      bottom: Responsive.h(110.0),
+                    ),
                     itemCount: dateHeaders.length,
                     itemBuilder: (context, dateIndex) {
                       final header = dateHeaders[dateIndex];

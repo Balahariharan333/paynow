@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/utils/app_colors.dart';
@@ -51,6 +51,7 @@ class ActiveScratchCardsScreen extends StatelessWidget {
             // Grid List
             Expanded(
               child: GridView.builder(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.all(Responsive.w(20.0)),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: MediaQuery.of(context).size.width >= 500 ? 3 : 2,

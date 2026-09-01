@@ -41,6 +41,7 @@ class RechargeDirectoryScreen extends StatelessWidget {
             // Directory Categories List
             Expanded(
               child: ListView(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0), vertical: Responsive.h(8)),
                 children: [
                   _buildCategoryDirectory(
@@ -142,8 +143,9 @@ class RechargeDirectoryScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: EdgeInsets.all(Responsive.w(6)),
-                      decoration: BoxDecoration(
+                      width: Responsive.w(34),
+                      height: Responsive.h(34),
+                      decoration: const BoxDecoration(
                         color: AppColors.tintBlue,
                         shape: BoxShape.circle,
                       ),
@@ -153,16 +155,21 @@ class RechargeDirectoryScreen extends StatelessWidget {
                         size: 18,
                       ),
                     ),
-                    SizedBox(height: Responsive.h(8)),
-                    Text(
-                      item['label'] as String,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface,
+                    SizedBox(height: Responsive.h(6)),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          item['label'] as String,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w600,
+                            height: 1.15,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
                       ),
                     ),
                   ],

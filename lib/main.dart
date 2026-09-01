@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/auth/auth_bloc.dart';
@@ -7,14 +7,21 @@ import 'package:paynow/bloc/payment/payment_bloc.dart';
 import 'package:paynow/bloc/profile/profile_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
+import 'package:paynow/bloc/auth/auth_state.dart';
+import 'package:paynow/screen/home/main_screen.dart';
 import 'package:paynow/screen/auth/login_screen.dart';
+import 'package:paynow/hive/hive_service.dart';
 import 'package:paynow/utils/app_constants.dart';
 import 'package:paynow/utils/app_theme.dart';
 import 'package:paynow/bloc/theme/theme_bloc.dart';
 import 'package:paynow/bloc/theme/theme_state.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Hive database and encrypted secure storage
+  await HiveService.init();
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
@@ -65,6 +72,9 @@ class MainApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: state.themeMode,
+            scrollBehavior: const MaterialScrollBehavior().copyWith(
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            ),
             builder: (context, child) {
               final mediaQueryData = MediaQuery.of(context);
               final double screenWidth = mediaQueryData.size.width;
@@ -105,7 +115,14 @@ class MainApp extends StatelessWidget {
                 child: appContent,
               );
             },
-            home: const LoginScreen(),
+            home: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                if (authState is AuthSuccess) {
+                  return const MainScreen();
+                }
+                return const LoginScreen();
+              },
+            ),
           );
         },
       ),

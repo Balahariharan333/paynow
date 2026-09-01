@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/auth/auth_bloc.dart';
 import 'package:paynow/bloc/auth/auth_event.dart';
 import 'package:paynow/bloc/auth/auth_state.dart';
+import 'package:paynow/bloc/profile/profile_bloc.dart';
+import 'package:paynow/bloc/profile/profile_event.dart';
 import 'package:paynow/screen/onboarding/link_bank_screen.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/app_constants.dart';
@@ -67,6 +69,9 @@ class _LoginScreenState extends State<LoginScreen> {
             }
           });
         } else if (state is AuthSuccess) {
+          // Refresh profile bloc from Hive with the updated login phone number
+          context.read<ProfileBloc>().add(const LoadProfileEvent());
+
           Future.delayed(const Duration(milliseconds: 800), () {
             if (!context.mounted) return;
             Navigator.pushReplacement(
@@ -97,6 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                   padding: EdgeInsets.symmetric(horizontal: Responsive.w(24.0)),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(

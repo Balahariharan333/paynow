@@ -1,16 +1,24 @@
-﻿import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/auth/auth_event.dart';
 import 'package:paynow/bloc/auth/auth_state.dart';
+import 'package:paynow/hive/hive_service.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   String _currentPhoneNumber = '';
 
-  AuthBloc() : super(const AuthInitial()) {
+  AuthBloc() : super(_getInitialState()) {
     on<SendOtpEvent>(_onSendOtp);
     on<VerifyOtpEvent>(_onVerifyOtp);
     on<BackToPhoneStageEvent>(_onBackToPhoneStage);
     on<ResetAuthEvent>(_onResetAuth);
     on<LogoutEvent>(_onLogout);
+  }
+
+  static AuthState _getInitialState() {
+    if (HiveService.isLoggedIn()) {
+      return AuthSuccess(phoneNumber: HiveService.getLoggedInPhone());
+    }
+    return const AuthInitial();
   }
 
   Future<void> _onSendOtp(SendOtpEvent event, Emitter<AuthState> emit) async {
@@ -39,6 +47,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     // Simulate OTP verification
     await Future.delayed(const Duration(milliseconds: 1500));
+
+    // Persist login session into Hive
+    await HiveService.saveLoginSession(_currentPhoneNumber);
     emit(AuthSuccess(phoneNumber: _currentPhoneNumber));
   }
 
@@ -51,8 +62,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthInitial());
   }
 
-  void _onLogout(LogoutEvent event, Emitter<AuthState> emit) {
+  Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
     _currentPhoneNumber = '';
+    await HiveService.clearLoginSession();
     emit(const AuthInitial());
   }
 }

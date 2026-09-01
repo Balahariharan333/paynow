@@ -1,4 +1,4 @@
-﻿import 'package:equatable/equatable.dart';
+import 'package:equatable/equatable.dart';
 
 abstract class ProfileState extends Equatable {
   const ProfileState();
@@ -15,6 +15,7 @@ class ProfileLoaded extends ProfileState {
   final String name;
   final String phone;
   final String upiId;
+  final String mpin;
   final bool notificationsEnabled;
   final bool biometricsEnabled;
   final bool darkModeEnabled;
@@ -23,6 +24,7 @@ class ProfileLoaded extends ProfileState {
     this.name = 'Alex',
     this.phone = '+91 98765 43210',
     this.upiId = 'alex@paynow',
+    this.mpin = '1234',
     this.notificationsEnabled = true,
     this.biometricsEnabled = false,
     this.darkModeEnabled = false,
@@ -32,6 +34,7 @@ class ProfileLoaded extends ProfileState {
     String? name,
     String? phone,
     String? upiId,
+    String? mpin,
     bool? notificationsEnabled,
     bool? biometricsEnabled,
     bool? darkModeEnabled,
@@ -40,6 +43,7 @@ class ProfileLoaded extends ProfileState {
       name: name ?? this.name,
       phone: phone ?? this.phone,
       upiId: upiId ?? this.upiId,
+      mpin: mpin ?? this.mpin,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       biometricsEnabled: biometricsEnabled ?? this.biometricsEnabled,
       darkModeEnabled: darkModeEnabled ?? this.darkModeEnabled,
@@ -51,6 +55,7 @@ class ProfileLoaded extends ProfileState {
         name,
         phone,
         upiId,
+        mpin,
         notificationsEnabled,
         biometricsEnabled,
         darkModeEnabled,

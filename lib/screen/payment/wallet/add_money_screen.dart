@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_bloc.dart';
@@ -7,6 +7,7 @@ import 'package:paynow/bloc/wallet/wallet_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_event.dart';
 import 'package:paynow/screen/payment/wallet/transaction_success_screen.dart';
 import 'package:paynow/utils/app_colors.dart';
+import 'package:paynow/utils/amount_formatter.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
 import 'package:paynow/widget/payment_method_tile.dart';
@@ -69,6 +70,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
             
             Expanded(
               child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,6 +107,9 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                                 child: TextField(
                                   controller: _amountController,
                                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  inputFormatters: const [
+                                    MaxAmountTextInputFormatter(max: 100000.0),
+                                  ],
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     color: AppColors.primary,
@@ -136,6 +141,19 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                               });
                             },
                           ),
+                          SizedBox(height: Responsive.h(12)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.info_outline, size: 12, color: AppColors.grayFont),
+                              SizedBox(width: Responsive.w(4)),
+                              CustomText.subtitle(
+                                'Max limit: Rs 1,00,000 (1 Lakh) / transaction',
+                                fontSize: 11,
+                                color: AppColors.grayFont,
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -147,8 +165,8 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                     
                     // Payment Methods list
                     PaymentMethodTile(
-                      title: 'HDFC Bank Savings',
-                      subtitle: 'Ending in **** 8829',
+                      title: 'HDFC Bank',
+                      subtitle: 'Ending in •••• 8829',
                       icon: Icons.account_balance,
                       isSelected: _selectedMethodIndex == 0,
                       onTap: () {
@@ -159,8 +177,8 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                     ),
                     SizedBox(height: Responsive.h(12)),
                     PaymentMethodTile(
-                      title: 'Visa Credit Card',
-                      subtitle: 'Ending in **** 1234',
+                      title: 'Visa Platinum Debit Card',
+                      subtitle: 'Ending in •••• 1234',
                       icon: Icons.credit_card,
                       isSelected: _selectedMethodIndex == 1,
                       onTap: () {
@@ -170,8 +188,6 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                       },
                     ),
                     SizedBox(height: Responsive.h(12)),
-                    
-                    // Add new method button
                     Container(
                       padding: EdgeInsets.all(Responsive.w(16)),
                       decoration: BoxDecoration(

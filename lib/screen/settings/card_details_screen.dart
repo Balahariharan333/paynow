@@ -1,10 +1,12 @@
-﻿// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_event.dart';
 import 'package:paynow/bloc/wallet/wallet_state.dart';
+import 'package:paynow/bloc/profile/profile_bloc.dart';
+import 'package:paynow/bloc/profile/profile_state.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -32,6 +34,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
             _buildAppBar(),
             Expanded(
               child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.all(Responsive.w(20.0)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,15 +336,150 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> {
                 activeThumbColor: AppColors.primary,
                 activeTrackColor: AppColors.tintBlue,
                 onChanged: (val) {
-                  setState(() {
-                    _showCardDetails = val;
-                  });
+                  if (val) {
+                    _promptForMpin(context);
+                  } else {
+                    setState(() {
+                      _showCardDetails = false;
+                    });
+                  }
                 },
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  void _promptForMpin(BuildContext context) {
+    final pinController = TextEditingController();
+    String? errorMessage;
+    final profileState = context.read<ProfileBloc>().state;
+    final expectedMpin = profileState is ProfileLoaded ? profileState.mpin : '1234';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Container(
+              padding: EdgeInsets.only(
+                left: Responsive.w(24),
+                right: Responsive.w(24),
+                top: Responsive.h(24),
+                bottom: MediaQuery.of(context).viewInsets.bottom + Responsive.h(24),
+              ),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: Responsive.w(40),
+                      height: Responsive.h(4),
+                      decoration: BoxDecoration(
+                        color: AppColors.grayFont.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: Responsive.h(16)),
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(Responsive.w(8)),
+                        decoration: BoxDecoration(
+                          color: AppColors.tintBlue,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.shield_outlined, color: AppColors.primary, size: 20),
+                      ),
+                      SizedBox(width: Responsive.w(12)),
+                      CustomText.header('Enter App MPIN', fontSize: 18),
+                    ],
+                  ),
+                  SizedBox(height: Responsive.h(8)),
+                  CustomText.subtitle('Enter your 4-digit MPIN to decrypt card number and CVV', fontSize: 12),
+                  if (errorMessage != null) ...[
+                    SizedBox(height: Responsive.h(12)),
+                    Container(
+                      padding: EdgeInsets.all(Responsive.w(10)),
+                      decoration: BoxDecoration(
+                        color: AppColors.tintRed,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: AppColors.errorRed, size: 16),
+                          SizedBox(width: Responsive.w(8)),
+                          Expanded(
+                            child: CustomText.body(errorMessage!, color: AppColors.errorRed, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  SizedBox(height: Responsive.h(16)),
+                  TextField(
+                    controller: pinController,
+                    keyboardType: TextInputType.number,
+                    obscureText: true,
+                    maxLength: 4,
+                    autofocus: true,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 24, letterSpacing: 16, fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                      hintText: '••••',
+                      counterText: '',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
+                  SizedBox(height: Responsive.h(20)),
+                  SizedBox(
+                    width: double.infinity,
+                    height: Responsive.h(50),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final entered = pinController.text.trim();
+                        if (entered == expectedMpin) {
+                          Navigator.pop(sheetContext);
+                          setState(() {
+                            _showCardDetails = true;
+                          });
+                          ScaffoldMessenger.of(context).clearSnackBars();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Card credentials unlocked'),
+                              backgroundColor: AppColors.successGreen,
+                              duration: Duration(seconds: 1),
+                            ),
+                          );
+                        } else {
+                          setSheetState(() {
+                            errorMessage = 'Incorrect MPIN. (Default: 1234)';
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: CustomText.title('Unlock Card', color: AppColors.white, fontSize: 15),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

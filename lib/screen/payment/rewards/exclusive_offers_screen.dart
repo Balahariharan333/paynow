@@ -73,6 +73,7 @@ class ExclusiveOffersScreen extends StatelessWidget {
             // Offers Scrollable List
             Expanded(
               child: ListView.separated(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.all(Responsive.w(20.0)),
                 itemCount: offers.length,
                 separatorBuilder: (context, index) => SizedBox(height: Responsive.h(12)),

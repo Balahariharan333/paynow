@@ -1,4 +1,4 @@
-﻿import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/payment/payment_event.dart';
 import 'package:paynow/bloc/payment/payment_state.dart';
 
@@ -16,6 +16,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   ) async {
     if (event.amount <= 0) {
       emit(const PaymentError('Please enter a valid amount'));
+      return;
+    }
+    if (event.amount > 100000) {
+      emit(const PaymentError('Amount exceeds maximum transaction limit of Rs 1,00,000'));
       return;
     }
 

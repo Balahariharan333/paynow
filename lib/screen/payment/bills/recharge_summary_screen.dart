@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/payment/payment_bloc.dart';
@@ -72,6 +72,7 @@ class RechargeSummaryScreen extends StatelessWidget {
             
             Expanded(
               child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0)),
                 child: Column(
                   children: [

@@ -71,6 +71,7 @@ class MobileRechargeScreen extends StatelessWidget {
             
             Expanded(
               child: ListView(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0)),
                 children: [
                   // Recent Recharges row
@@ -79,6 +80,7 @@ class MobileRechargeScreen extends StatelessWidget {
                   SizedBox(
                     height: Responsive.h(80),
                     child: ListView.separated(
+                      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       scrollDirection: Axis.horizontal,
                       itemCount: recents.length,
                       separatorBuilder: (context, index) => SizedBox(width: Responsive.w(16)),

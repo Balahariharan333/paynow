@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
@@ -236,6 +236,7 @@ class _LinkBankScreenState extends State<LinkBankScreen> {
           child: _filteredBanks.isEmpty
               ? _buildEmptyState()
               : GridView.builder(
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                   padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0)),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: MediaQuery.of(context).size.width >= 500 ? 4 : 3,
@@ -267,12 +268,12 @@ class _LinkBankScreenState extends State<LinkBankScreen> {
                               width: Responsive.w(48),
                               height: Responsive.h(48),
                               decoration: BoxDecoration(
-                                color: bank['logoColor'] as Color,
+                                color: bank['logoColor'] as Color? ?? AppColors.tintBlue,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
-                                bank['icon'] as IconData,
-                                color: bank['textColor'] as Color,
+                                bank['icon'] as IconData? ?? Icons.account_balance,
+                                color: bank['textColor'] as Color? ?? AppColors.primary,
                                 size: 24,
                               ),
                             ),

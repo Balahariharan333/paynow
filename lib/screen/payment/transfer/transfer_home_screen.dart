@@ -11,6 +11,7 @@ import 'package:paynow/screen/payment/transfer/contact_transfer_screen.dart';
 import 'package:paynow/screen/payment/transfer/to_mobile_number_screen.dart';
 import 'package:paynow/screen/payment/wallet/transaction_success_screen.dart';
 import 'package:paynow/utils/app_colors.dart';
+import 'package:paynow/utils/amount_formatter.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/contact_avatar.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -115,8 +116,11 @@ class _TransferHomeScreenState extends State<TransferHomeScreen> {
                     TextField(
                       controller: _amountController,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: const [
+                        MaxAmountTextInputFormatter(max: 100000.0),
+                      ],
                       decoration: InputDecoration(
-                        hintText: 'Enter amount (e.g. 500)',
+                        hintText: 'Enter amount (max Rs 1,00,000)',
                         hintStyle: const TextStyle(color: AppColors.grayFont, fontSize: 13),
                         filled: true,
                         fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).scaffoldBackgroundColor : AppColors.lightGray,
@@ -147,6 +151,16 @@ class _TransferHomeScreenState extends State<TransferHomeScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Please enter a valid amount'),
+                                backgroundColor: AppColors.errorRed,
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (amountVal > 100000) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Maximum self-transfer limit is Rs 1,00,000 (1 Lakh)'),
                                 backgroundColor: AppColors.errorRed,
                               ),
                             );
@@ -315,6 +329,7 @@ class _TransferHomeScreenState extends State<TransferHomeScreen> {
             // Recent Recipient List
             Expanded(
               child: ListView.separated(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0)),
                 itemCount: recents.length,
                 separatorBuilder: (context, index) => SizedBox(height: Responsive.h(12)),

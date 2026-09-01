@@ -18,6 +18,7 @@ class RewardsHomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         child: Padding(
           padding: EdgeInsets.only(
             left: Responsive.w(20.0),
@@ -57,6 +58,7 @@ class RewardsHomeScreen extends StatelessWidget {
               SizedBox(
                 height: Responsive.h(120),
                 child: ListView(
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                   scrollDirection: Axis.horizontal,
                   children: [
                     _buildScratchCardShortcut(

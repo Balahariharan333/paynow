@@ -275,6 +275,7 @@ class _BankTransferScreenState extends State<BankTransferScreen> {
       children: [
         Expanded(
           child: ListView.separated(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0), vertical: Responsive.h(8)),
             itemCount: accounts.length,
             separatorBuilder: (context, index) => SizedBox(height: Responsive.h(12)),

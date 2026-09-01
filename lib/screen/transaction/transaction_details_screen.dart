@@ -34,6 +34,7 @@ class TransactionDetailsScreen extends StatelessWidget {
             _buildAppBar(context),
             Expanded(
               child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.symmetric(horizontal: Responsive.w(24.0), vertical: Responsive.h(12.0)),
                 child: Column(
                   children: [

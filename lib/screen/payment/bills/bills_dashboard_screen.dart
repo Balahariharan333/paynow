@@ -18,6 +18,7 @@ class BillsDashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         child: Padding(
           padding: EdgeInsets.only(
             left: Responsive.w(20.0),
@@ -112,6 +113,7 @@ class BillsDashboardScreen extends StatelessWidget {
               SizedBox(
                 height: Responsive.h(130),
                 child: ListView(
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                   scrollDirection: Axis.horizontal,
                   children: [
                     _buildDueBillCard(
@@ -220,7 +222,7 @@ class BillsDashboardScreen extends StatelessWidget {
               CustomText.title(title, fontSize: 13),
               CustomText.body(
                 due,
-                color: isActive ? AppColors.errorRed : AppColors.grayFont,
+                color: isActive ? AppColors.errorRed : AppColors.successGreen,
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
               ),
@@ -228,7 +230,7 @@ class BillsDashboardScreen extends StatelessWidget {
           ),
           SizedBox(height: Responsive.h(4)),
           CustomText.subtitle(sub, fontSize: 11),
-          Spacer(),
+          const Spacer(),
           CustomText.header(amount, fontSize: 16),
           SizedBox(height: Responsive.h(8)),
           SizedBox(
@@ -239,7 +241,7 @@ class BillsDashboardScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: isActive ? AppColors.primary : Theme.of(context).cardColor,
                 foregroundColor: isActive ? AppColors.white : AppColors.primary,
-                side: isActive ? BorderSide.none : BorderSide(color: AppColors.primary),
+                side: isActive ? BorderSide.none : const BorderSide(color: AppColors.primary),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -277,7 +279,7 @@ class BillsDashboardScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const RechargeDirectoryScreen()),
                 );
               },
-              child: Icon(
+              child: const Icon(
                 Icons.arrow_forward_ios,
                 color: AppColors.grayFont,
                 size: 14,
@@ -287,72 +289,84 @@ class BillsDashboardScreen extends StatelessWidget {
         ),
         SizedBox(height: Responsive.h(12)),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: items.map((item) {
-            return GestureDetector(
-              onTap: () {
-                if (item['action'] == 'mobile_recharge') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MobileRechargeScreen()),
-                  );
-                } else if (item['action'] == 'electricity') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const RechargeSummaryScreen(
-                        recipient: 'Electricity (AC 9283 4810)',
-                        operatorName: 'State Electricity Board',
-                        planDetails: 'Electricity Bill Payment',
-                        price: 142.50,
-                      ),
+          children: List.generate(items.length, (index) {
+            final item = items[index];
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: Responsive.w(4)),
+                child: GestureDetector(
+                  onTap: () {
+                    if (item['action'] == 'mobile_recharge') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MobileRechargeScreen()),
+                      );
+                    } else if (item['action'] == 'electricity') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RechargeSummaryScreen(
+                            recipient: 'Electricity (AC 9283 4810)',
+                            operatorName: 'State Electricity Board',
+                            planDetails: 'Electricity Bill Payment',
+                            price: 142.50,
+                          ),
+                        ),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RechargeDirectoryScreen()),
+                      );
+                    }
+                  },
+                  child: Container(
+                    height: Responsive.h(96),
+                    padding: EdgeInsets.symmetric(horizontal: Responsive.w(4), vertical: Responsive.h(10)),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const RechargeDirectoryScreen()),
-                  );
-                }
-              },
-              child: Container(
-                width: Responsive.w(76),
-                padding: EdgeInsets.symmetric(horizontal: Responsive.w(4), vertical: Responsive.h(12)),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(Responsive.w(8)),
-                      decoration: BoxDecoration(
-                        color: AppColors.tintBlue,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        item['icon'] as IconData,
-                        color: AppColors.primary,
-                        size: 20,
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: Responsive.w(36),
+                          height: Responsive.h(36),
+                          decoration: const BoxDecoration(
+                            color: AppColors.tintBlue,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            item['icon'] as IconData,
+                            color: AppColors.primary,
+                            size: 18,
+                          ),
+                        ),
+                        SizedBox(height: Responsive.h(6)),
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              item['label'] as String,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                height: 1.15,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: Responsive.h(8)),
-                    Text(
-                      item['label'] as String,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             );
-          }).toList(),
+          }),
         ),
       ],
     );

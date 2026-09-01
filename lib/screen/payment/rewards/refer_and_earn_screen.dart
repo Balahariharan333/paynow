@@ -42,6 +42,7 @@ class ReferAndEarnScreen extends StatelessWidget {
             
             Expanded(
               child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0)),
                 child: Column(
                   children: [

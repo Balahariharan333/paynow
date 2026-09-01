@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_bloc.dart';
@@ -9,6 +9,7 @@ import 'package:paynow/bloc/wallet/wallet_state.dart';
 import 'package:paynow/screen/onboarding/link_bank_screen.dart';
 import 'package:paynow/screen/payment/wallet/transaction_success_screen.dart';
 import 'package:paynow/utils/app_colors.dart';
+import 'package:paynow/utils/amount_formatter.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
 import 'package:paynow/widget/payment_method_tile.dart';
@@ -115,6 +116,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                 
                 Expanded(
                   child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                     padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,6 +226,9 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                                     child: TextField(
                                       controller: _amountController,
                                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                      inputFormatters: const [
+                                        MaxAmountTextInputFormatter(max: 100000.0),
+                                      ],
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                         color: AppColors.primary,
@@ -247,17 +252,31 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                               SizedBox(height: Responsive.h(24)),
                               PresetAmountChips(
                                 amounts: _presets,
-                                selectedAmount: '\$${_selectedAmount.split('.')[0]}',
+                                selectedAmount: 'Rs ${_selectedAmount.split('.')[0]}',
                                 onSelected: (amount) {
                                   setState(() {
                                     if (amount == 'Max') {
-                                      _selectedAmount = availableBalance.toStringAsFixed(2);
+                                      final maxAllowed = availableBalance > 100000 ? 100000.0 : availableBalance;
+                                      _selectedAmount = maxAllowed.toStringAsFixed(2);
                                     } else {
-                                      _selectedAmount = '${amount.replaceAll(r'$', '').replaceAll(',', '')}.00';
+                                      _selectedAmount = '${amount.replaceAll(r'Rs ', '').replaceAll(r'$', '').replaceAll(',', '')}.00';
                                     }
                                     _amountController.text = _selectedAmount;
                                   });
                                 },
+                              ),
+                              SizedBox(height: Responsive.h(12)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.info_outline, size: 12, color: AppColors.grayFont),
+                                  SizedBox(width: Responsive.w(4)),
+                                  CustomText.subtitle(
+                                    'Max limit: Rs 1,00,000 (1 Lakh) / transaction',
+                                    fontSize: 11,
+                                    color: AppColors.grayFont,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -360,6 +379,16 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Insufficient Wallet Balance'),
+                                    backgroundColor: AppColors.errorRed,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              if (amountVal > 100000) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Maximum withdrawal limit is Rs 1,00,000 (1 Lakh) per transaction'),
                                     backgroundColor: AppColors.errorRed,
                                   ),
                                 );

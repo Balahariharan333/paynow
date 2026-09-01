@@ -23,6 +23,7 @@ class WalletBalanceScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         child: Padding(
           padding: EdgeInsets.only(
             left: Responsive.w(20.0),

@@ -184,6 +184,7 @@ class SelectPlanScreen extends StatelessWidget {
 
   Widget _buildPlansList(BuildContext context, List<Map<String, dynamic>> plansList) {
     return ListView.separated(
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0), vertical: Responsive.h(8)),
       itemCount: plansList.length,
       separatorBuilder: (context, index) => SizedBox(height: Responsive.h(16)),

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
 
@@ -76,14 +76,12 @@ class HistoryTransactionItem extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (!isSuccess) ...[
-                    const Icon(
-                      Icons.error_outline,
-                      color: AppColors.errorRed,
-                      size: 12,
-                    ),
-                    const SizedBox(width: 4),
-                  ],
+                  Icon(
+                    isSuccess ? Icons.check_circle_outline : Icons.error_outline,
+                    color: isSuccess ? AppColors.successGreen : AppColors.errorRed,
+                    size: 12,
+                  ),
+                  const SizedBox(width: 4),
                   CustomText.status(status, isSuccess: isSuccess),
                 ],
               ),

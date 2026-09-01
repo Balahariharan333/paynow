@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 
@@ -158,9 +158,9 @@ class CustomText extends StatelessWidget {
       maxLines: maxLines,
       overflow: overflow,
       style: TextStyle(
-        color: isSuccess ? AppColors.grayFont : AppColors.errorRed,
+        color: isSuccess ? AppColors.successGreen : AppColors.errorRed,
         fontSize: fontSize,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
       ),
     );
   }

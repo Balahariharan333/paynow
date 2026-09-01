@@ -1,4 +1,4 @@
-﻿import 'package:equatable/equatable.dart';
+import 'package:equatable/equatable.dart';
 
 abstract class ProfileEvent extends Equatable {
   const ProfileEvent();
@@ -36,4 +36,22 @@ class ToggleDarkModeEvent extends ProfileEvent {
 
   @override
   List<Object?> get props => [enabled];
+}
+
+class UpdateMpinEvent extends ProfileEvent {
+  final String newMpin;
+
+  const UpdateMpinEvent(this.newMpin);
+
+  @override
+  List<Object?> get props => [newMpin];
+}
+
+class UpdateProfilePhoneEvent extends ProfileEvent {
+  final String phoneNumber;
+
+  const UpdateProfilePhoneEvent(this.phoneNumber);
+
+  @override
+  List<Object?> get props => [phoneNumber];
 }

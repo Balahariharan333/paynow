@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/utils/app_colors.dart';
@@ -94,6 +94,7 @@ class _ToMobileNumberScreenState extends State<ToMobileNumberScreen> {
             // Contacts List
             Expanded(
               child: ListView(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0)),
                 children: [
                   // Option to pay to new typed number if searching by number

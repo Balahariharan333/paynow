@@ -1,6 +1,8 @@
 // ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:paynow/bloc/profile/profile_bloc.dart';
+import 'package:paynow/bloc/profile/profile_state.dart';
 import 'package:paynow/bloc/transaction/transaction_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_state.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
@@ -28,6 +30,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         child: Padding(
           padding: EdgeInsets.only(
             left: Responsive.w(20.0),
@@ -123,20 +126,25 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             SizedBox(width: Responsive.w(12)),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomText.body(
-                  'Good Morning,',
-                  color: AppColors.grayFont,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-                CustomText.header(
-                  'Alex',
-                  fontSize: 18,
-                ),
-              ],
+            BlocBuilder<ProfileBloc, ProfileState>(
+              builder: (context, profileState) {
+                final name = profileState is ProfileLoaded ? profileState.name : 'Alex';
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomText.body(
+                      'Good Morning,',
+                      color: AppColors.grayFont,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    CustomText.header(
+                      name,
+                      fontSize: 18,
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -636,15 +644,19 @@ class HomeScreen extends StatelessWidget {
                             width: Responsive.w(48),
                             height: Responsive.h(48),
                             decoration: BoxDecoration(
-                              color: tx['iconBackground'] ?? const Color(0xFFF3F4F6),
+                              color: (tx['iconBackground'] as Color?) ?? const Color(0xFFF3F4F6),
                               shape: BoxShape.circle,
                             ),
                             child: hasIcon
-                                ? Icon(tx['icon'] as IconData, color: tx['iconColor'] as Color, size: Responsive.w(22))
+                                ? Icon(
+                                    tx['icon'] as IconData,
+                                    color: (tx['iconColor'] as Color?) ?? AppColors.primary,
+                                    size: Responsive.w(22),
+                                  )
                                 : Center(
                                     child: CustomText.title(
-                                      tx['initialText'] ?? 'T',
-                                      color: tx['iconColor'] ?? AppColors.grayFont,
+                                      tx['initialText'] as String? ?? 'T',
+                                      color: (tx['iconColor'] as Color?) ?? AppColors.grayFont,
                                     ),
                                   ),
                           ),
