@@ -39,11 +39,11 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     }
 
     final bankBeneficiaries = HiveService.getBeneficiaries(isBank: true)
-        .map((b) => b.toMap())
+        .map((b) => b.toRecipientMap())
         .toList();
 
     final upiBeneficiaries = HiveService.getBeneficiaries(isBank: false)
-        .map((b) => b.toMap())
+        .map((b) => b.toRecipientMap())
         .toList();
 
     return TransactionLoaded(

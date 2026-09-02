@@ -10,35 +10,38 @@ import 'package:paynow/model/wallet_model.dart';
 class HiveService {
   HiveService._();
 
-  static late Box<UserProfileModel> _userBox;
-  static late Box<WalletModel> _walletBox;
-  static late Box<TransactionModel> _transactionBox;
-  static late Box<BeneficiaryModel> _beneficiaryBox;
+  static late Box _userBox;
+  static late Box _walletBox;
+  static late Box _transactionBox;
+  static late Box _beneficiaryBox;
   static late Box _appSettingsBox;
 
-  static Box<UserProfileModel> get userBox => _userBox;
-  static Box<WalletModel> get walletBox => _walletBox;
-  static Box<TransactionModel> get transactionBox => _transactionBox;
-  static Box<BeneficiaryModel> get beneficiaryBox => _beneficiaryBox;
+  static Box get userBox => _userBox;
+  static Box get walletBox => _walletBox;
+  static Box get transactionBox => _transactionBox;
+  static Box get beneficiaryBox => _beneficiaryBox;
   static Box get appSettingsBox => _appSettingsBox;
 
-  /// Initialize Hive, register adapters, setup AES-256 encryption key, and open boxes.
+  /// Helper to safely open a Hive box with automatic cleanup of legacy binary data
+  static Future<Box> _openBoxSafe(
+    String boxName, {
+    HiveCipher? encryptionCipher,
+  }) async {
+    try {
+      return await Hive.openBox(boxName, encryptionCipher: encryptionCipher);
+    } catch (_) {
+      // In case of schema migration from legacy TypeAdapter to Map/JSON format,
+      // or corrupted binary frames on disk, safely delete old box from disk and reopen cleanly.
+      try {
+        await Hive.deleteBoxFromDisk(boxName);
+      } catch (_) {}
+      return await Hive.openBox(boxName, encryptionCipher: encryptionCipher);
+    }
+  }
+
+  /// Initialize Hive, setup AES-256 encryption key, and open Map/JSON boxes.
   static Future<void> init() async {
     await Hive.initFlutter();
-
-    // Register Hive Adapters
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(UserProfileModelAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(TransactionModelAdapter());
-    }
-    if (!Hive.isAdapterRegistered(2)) {
-      Hive.registerAdapter(WalletModelAdapter());
-    }
-    if (!Hive.isAdapterRegistered(3)) {
-      Hive.registerAdapter(BeneficiaryModelAdapter());
-    }
 
     // Retrieve or generate AES-256 encryption key from FlutterSecureStorage
     const secureStorage = FlutterSecureStorage();
@@ -62,205 +65,221 @@ class HiveService {
     final cipher = HiveAesCipher(encryptionKey);
 
     // Open encrypted boxes for sensitive user profile and wallet data
-    _userBox = await Hive.openBox<UserProfileModel>(
+    _userBox = await _openBoxSafe(
       HiveBoxes.userBox,
       encryptionCipher: cipher,
     );
-    _walletBox = await Hive.openBox<WalletModel>(
+    _walletBox = await _openBoxSafe(
       HiveBoxes.walletBox,
       encryptionCipher: cipher,
     );
 
     // Open standard boxes for transactions, beneficiaries, and settings
-    _transactionBox = await Hive.openBox<TransactionModel>(HiveBoxes.transactionBox);
-    _beneficiaryBox = await Hive.openBox<BeneficiaryModel>(HiveBoxes.beneficiaryBox);
-    _appSettingsBox = await Hive.openBox(HiveBoxes.appSettingsBox);
+    _transactionBox = await _openBoxSafe(HiveBoxes.transactionBox);
+    _beneficiaryBox = await _openBoxSafe(HiveBoxes.beneficiaryBox);
+    _appSettingsBox = await _openBoxSafe(HiveBoxes.appSettingsBox);
 
-    // Seed default data on fresh install
+    // Seed default data on fresh install or after legacy wipe
     await _seedInitialDataIfNeeded();
   }
 
   static Future<void> _seedInitialDataIfNeeded() async {
-    final bool isSeeded = _appSettingsBox.get(HiveBoxes.isAppSeededKey, defaultValue: false);
-    if (!isSeeded) {
-      // 1. Seed User Profile
-      if (_userBox.isEmpty) {
-        await _userBox.put(HiveBoxes.userProfileKey, UserProfileModel());
-      }
-
-      // 2. Seed Wallet Data
-      if (_walletBox.isEmpty) {
-        await _walletBox.put(HiveBoxes.walletDataKey, WalletModel());
-      }
-
-      // 3. Seed Initial Transactions
-      if (_transactionBox.isEmpty) {
-        final initialTxns = [
-          TransactionModel(
-            id: 'TXN_001',
-            title: 'Sarah Jenkins',
-            time: '10:42 AM',
-            date: 'Today',
-            type: 'Sent',
-            amount: 'Rs 120.00',
-            amountValue: 120.0,
-            status: 'Success',
-            isPositive: false,
-            isSuccess: true,
-            initialText: 'S',
-            utr: 'UTR88349129849',
-          ),
-          TransactionModel(
-            id: 'TXN_002',
-            title: 'Stripe Inc.',
-            time: '09:15 AM',
-            date: 'Today',
-            type: 'Payout',
-            amount: 'Rs 850.50',
-            amountValue: 850.5,
-            status: 'Success',
-            isPositive: true,
-            isSuccess: true,
-            initialText: 'S',
-            iconCode: 0xe13b, // Icons.card_giftcard
-            utr: 'UTR99837482910',
-          ),
-          TransactionModel(
-            id: 'TXN_003',
-            title: 'Mike Ross',
-            time: '08:30 PM',
-            date: 'Yesterday',
-            type: 'Failed',
-            amount: 'Rs 45.00',
-            amountValue: 45.0,
-            status: 'Declined',
-            isPositive: false,
-            isSuccess: false,
-            initialText: 'M',
-            utr: 'UTR12837498112',
-          ),
-          TransactionModel(
-            id: 'TXN_004',
-            title: 'City Power & Light',
-            time: '02:10 PM',
-            date: 'Yesterday',
-            type: 'Utility',
-            amount: 'Rs 132.80',
-            amountValue: 132.8,
-            status: 'Success',
-            isPositive: false,
-            isSuccess: true,
-            initialText: 'C',
-            iconCode: 0xe292, // Icons.flash_on
-            utr: 'UTR55492348123',
-          ),
-          TransactionModel(
-            id: 'TXN_005',
-            title: 'Whole Foods Market',
-            time: '5:45 PM',
-            date: 'Last Week',
-            type: 'Scan & Pay',
-            amount: 'Rs 84.20',
-            amountValue: 84.2,
-            status: 'Success',
-            isPositive: false,
-            isSuccess: true,
-            initialText: 'W',
-            iconCode: 0xe5f9, // Icons.storefront
-            utr: 'UTR44923749234',
-          ),
-        ];
-
-        for (final tx in initialTxns) {
-          await _transactionBox.add(tx);
-        }
-      }
-
-      // 4. Seed Initial Beneficiaries
-      if (_beneficiaryBox.isEmpty) {
-        final initialBeneficiaries = [
-          BeneficiaryModel(
-            name: 'Harvey Specter',
-            detail: 'HDFC Bank •••• 8829',
-            isBank: true,
-            bank: 'HDFC Bank',
-          ),
-          BeneficiaryModel(
-            name: 'Rachel Zane',
-            detail: 'Chase Bank •••• 1102',
-            isBank: true,
-            bank: 'Chase Bank',
-          ),
-          BeneficiaryModel(
-            name: 'Louis Litt',
-            detail: 'Axis Bank •••• 5678',
-            isBank: true,
-            bank: 'Axis Bank',
-          ),
-          BeneficiaryModel(
-            name: 'Mike Ross',
-            detail: 'mikeross@paynow',
-            isBank: false,
-          ),
-          BeneficiaryModel(
-            name: 'Sarah Jenkins',
-            detail: 'sarah@okaxis',
-            isBank: false,
-          ),
-          BeneficiaryModel(
-            name: 'Jessica Pearson',
-            detail: 'jessica@paytm',
-            isBank: false,
-          ),
-        ];
-
-        for (final b in initialBeneficiaries) {
-          await _beneficiaryBox.add(b);
-        }
-      }
-
-      await _appSettingsBox.put(HiveBoxes.isAppSeededKey, true);
+    // 1. Seed User Profile
+    if (_userBox.isEmpty || !_userBox.containsKey(HiveBoxes.userProfileKey)) {
+      await _userBox.put(HiveBoxes.userProfileKey, UserProfileModel().toMap());
     }
+
+    // 2. Seed Wallet Data
+    if (_walletBox.isEmpty || !_walletBox.containsKey(HiveBoxes.walletDataKey)) {
+      await _walletBox.put(HiveBoxes.walletDataKey, WalletModel().toMap());
+    }
+
+    // 3. Seed Initial Transactions
+    if (_transactionBox.isEmpty) {
+      final initialTxns = [
+        TransactionModel(
+          id: 'TXN_001',
+          title: 'Sarah Jenkins',
+          time: '10:42 AM',
+          date: 'Today',
+          type: 'Sent',
+          amount: 'Rs 120.00',
+          amountValue: 120.0,
+          status: 'Success',
+          isPositive: false,
+          isSuccess: true,
+          initialText: 'S',
+          utr: 'UTR88349129849',
+        ),
+        TransactionModel(
+          id: 'TXN_002',
+          title: 'Stripe Inc.',
+          time: '09:15 AM',
+          date: 'Today',
+          type: 'Payout',
+          amount: 'Rs 850.50',
+          amountValue: 850.5,
+          status: 'Success',
+          isPositive: true,
+          isSuccess: true,
+          initialText: 'S',
+          iconCode: 0xe13b, // Icons.card_giftcard
+          utr: 'UTR99837482910',
+        ),
+        TransactionModel(
+          id: 'TXN_003',
+          title: 'Mike Ross',
+          time: '08:30 PM',
+          date: 'Yesterday',
+          type: 'Failed',
+          amount: 'Rs 45.00',
+          amountValue: 45.0,
+          status: 'Declined',
+          isPositive: false,
+          isSuccess: false,
+          initialText: 'M',
+          utr: 'UTR12837498112',
+        ),
+        TransactionModel(
+          id: 'TXN_004',
+          title: 'City Power & Light',
+          time: '02:10 PM',
+          date: 'Yesterday',
+          type: 'Utility',
+          amount: 'Rs 132.80',
+          amountValue: 132.8,
+          status: 'Success',
+          isPositive: false,
+          isSuccess: true,
+          initialText: 'C',
+          iconCode: 0xe292, // Icons.flash_on
+          utr: 'UTR55492348123',
+        ),
+        TransactionModel(
+          id: 'TXN_005',
+          title: 'Whole Foods Market',
+          time: '5:45 PM',
+          date: 'Last Week',
+          type: 'Scan & Pay',
+          amount: 'Rs 84.20',
+          amountValue: 84.2,
+          status: 'Success',
+          isPositive: false,
+          isSuccess: true,
+          initialText: 'W',
+          iconCode: 0xe5f9, // Icons.storefront
+          utr: 'UTR44923749234',
+        ),
+      ];
+
+      for (final tx in initialTxns) {
+        await _transactionBox.add(tx.toMap());
+      }
+    }
+
+    // 4. Seed Initial Beneficiaries
+    if (_beneficiaryBox.isEmpty) {
+      final initialBeneficiaries = [
+        BeneficiaryModel(
+          name: 'Harvey Specter',
+          detail: 'HDFC Bank •••• 8829',
+          isBank: true,
+          bank: 'HDFC Bank',
+        ),
+        BeneficiaryModel(
+          name: 'Rachel Zane',
+          detail: 'Chase Bank •••• 1102',
+          isBank: true,
+          bank: 'Chase Bank',
+        ),
+        BeneficiaryModel(
+          name: 'Louis Litt',
+          detail: 'Axis Bank •••• 5678',
+          isBank: true,
+          bank: 'Axis Bank',
+        ),
+        BeneficiaryModel(
+          name: 'Mike Ross',
+          detail: 'mikeross@paynow',
+          isBank: false,
+        ),
+        BeneficiaryModel(
+          name: 'Sarah Jenkins',
+          detail: 'sarah@okaxis',
+          isBank: false,
+        ),
+        BeneficiaryModel(
+          name: 'Jessica Pearson',
+          detail: 'jessica@paytm',
+          isBank: false,
+        ),
+      ];
+
+      for (final b in initialBeneficiaries) {
+        await _beneficiaryBox.add(b.toMap());
+      }
+    }
+
+    await _appSettingsBox.put(HiveBoxes.isAppSeededKey, true);
   }
 
   // --- Profile Methods ---
   static UserProfileModel getUserProfile() {
-    return _userBox.get(HiveBoxes.userProfileKey, defaultValue: UserProfileModel()) ??
-        UserProfileModel();
+    final data = _userBox.get(HiveBoxes.userProfileKey);
+    if (data is Map) {
+      return UserProfileModel.fromMap(data);
+    }
+    return UserProfileModel();
   }
 
   static Future<void> saveUserProfile(UserProfileModel profile) async {
-    await _userBox.put(HiveBoxes.userProfileKey, profile);
+    await _userBox.put(HiveBoxes.userProfileKey, profile.toMap());
   }
 
   // --- Wallet Methods ---
   static WalletModel getWalletData() {
-    return _walletBox.get(HiveBoxes.walletDataKey, defaultValue: WalletModel()) ??
-        WalletModel();
+    final data = _walletBox.get(HiveBoxes.walletDataKey);
+    if (data is Map) {
+      return WalletModel.fromMap(data);
+    }
+    return WalletModel();
   }
 
   static Future<void> saveWalletData(WalletModel wallet) async {
-    await _walletBox.put(HiveBoxes.walletDataKey, wallet);
+    await _walletBox.put(HiveBoxes.walletDataKey, wallet.toMap());
   }
 
   // --- Transactions Methods ---
   static List<TransactionModel> getTransactions() {
-    return _transactionBox.values.toList();
+    final List<TransactionModel> list = [];
+    for (final item in _transactionBox.values) {
+      if (item is Map) {
+        list.add(TransactionModel.fromMap(item));
+      }
+    }
+    return list;
   }
 
   static Future<void> addTransaction(TransactionModel transaction) async {
-    await _transactionBox.add(transaction);
+    await _transactionBox.add(transaction.toMap());
   }
 
   // --- Beneficiaries Methods ---
   static List<BeneficiaryModel> getBeneficiaries({bool? isBank}) {
-    final all = _beneficiaryBox.values.toList();
-    if (isBank == null) return all;
-    return all.where((b) => b.isBank == isBank).toList();
+    final List<BeneficiaryModel> list = [];
+    for (final item in _beneficiaryBox.values) {
+      if (item is Map) {
+        final b = BeneficiaryModel.fromMap(item);
+        if (isBank == null || b.isBank == isBank) {
+          list.add(b);
+        }
+      }
+    }
+    return list;
   }
 
   static Future<void> addBeneficiary(BeneficiaryModel beneficiary) async {
-    await _beneficiaryBox.add(beneficiary);
+    await _beneficiaryBox.add(beneficiary.toMap());
   }
 
   // --- Theme Mode Methods ---

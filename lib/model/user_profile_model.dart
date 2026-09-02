@@ -1,26 +1,12 @@
-import 'package:hive/hive.dart';
+import 'dart:convert';
 
-@HiveType(typeId: 0)
-class UserProfileModel extends HiveObject {
-  @HiveField(0)
+class UserProfileModel {
   final String name;
-
-  @HiveField(1)
   final String phone;
-
-  @HiveField(2)
   final String upiId;
-
-  @HiveField(3)
   final String mpin;
-
-  @HiveField(4)
   final bool notificationsEnabled;
-
-  @HiveField(5)
   final bool biometricsEnabled;
-
-  @HiveField(6)
   final bool darkModeEnabled;
 
   UserProfileModel({
@@ -52,46 +38,78 @@ class UserProfileModel extends HiveObject {
       darkModeEnabled: darkModeEnabled ?? this.darkModeEnabled,
     );
   }
-}
 
-class UserProfileModelAdapter extends TypeAdapter<UserProfileModel> {
-  @override
-  final int typeId = 0;
-
-  @override
-  UserProfileModel read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'phone': phone,
+      'upiId': upiId,
+      'mpin': mpin,
+      'notificationsEnabled': notificationsEnabled,
+      'biometricsEnabled': biometricsEnabled,
+      'darkModeEnabled': darkModeEnabled,
     };
+  }
+
+  factory UserProfileModel.fromMap(Map<dynamic, dynamic> map) {
+    bool parseBool(dynamic val, bool defaultValue) {
+      if (val == null) return defaultValue;
+      if (val is bool) return val;
+      final str = val.toString().toLowerCase();
+      if (str == 'true' || str == '1') return true;
+      if (str == 'false' || str == '0') return false;
+      return defaultValue;
+    }
+
     return UserProfileModel(
-      name: fields[0] as String? ?? 'Alex',
-      phone: fields[1] as String? ?? '+91 98765 43210',
-      upiId: fields[2] as String? ?? 'alex@paynow',
-      mpin: fields[3] as String? ?? '1234',
-      notificationsEnabled: fields[4] as bool? ?? true,
-      biometricsEnabled: fields[5] as bool? ?? true,
-      darkModeEnabled: fields[6] as bool? ?? false,
+      name: map['name']?.toString() ?? 'Alex',
+      phone: map['phone']?.toString() ?? '+91 98765 43210',
+      upiId: map['upiId']?.toString() ?? 'alex@paynow',
+      mpin: map['mpin']?.toString() ?? '1234',
+      notificationsEnabled: parseBool(map['notificationsEnabled'], true),
+      biometricsEnabled: parseBool(map['biometricsEnabled'], true),
+      darkModeEnabled: parseBool(map['darkModeEnabled'], false),
     );
   }
 
+  Map<String, dynamic> toJson() => toMap();
+
+  factory UserProfileModel.fromJson(Map<String, dynamic> json) =>
+      UserProfileModel.fromMap(json);
+
+  String toRawJson() => jsonEncode(toMap());
+
+  factory UserProfileModel.fromRawJson(String source) =>
+      UserProfileModel.fromMap(jsonDecode(source) as Map<dynamic, dynamic>);
+
   @override
-  void write(BinaryWriter writer, UserProfileModel obj) {
-    writer
-      ..writeByte(7)
-      ..writeByte(0)
-      ..write(obj.name)
-      ..writeByte(1)
-      ..write(obj.phone)
-      ..writeByte(2)
-      ..write(obj.upiId)
-      ..writeByte(3)
-      ..write(obj.mpin)
-      ..writeByte(4)
-      ..write(obj.notificationsEnabled)
-      ..writeByte(5)
-      ..write(obj.biometricsEnabled)
-      ..writeByte(6)
-      ..write(obj.darkModeEnabled);
+  String toString() {
+    return 'UserProfileModel(name: $name, phone: $phone, upiId: $upiId, mpin: $mpin, notificationsEnabled: $notificationsEnabled, biometricsEnabled: $biometricsEnabled, darkModeEnabled: $darkModeEnabled)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is UserProfileModel &&
+        other.name == name &&
+        other.phone == phone &&
+        other.upiId == upiId &&
+        other.mpin == mpin &&
+        other.notificationsEnabled == notificationsEnabled &&
+        other.biometricsEnabled == biometricsEnabled &&
+        other.darkModeEnabled == darkModeEnabled;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      name,
+      phone,
+      upiId,
+      mpin,
+      notificationsEnabled,
+      biometricsEnabled,
+      darkModeEnabled,
+    );
   }
 }

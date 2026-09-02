@@ -1,17 +1,9 @@
-import 'package:hive/hive.dart';
+import 'dart:convert';
 
-@HiveType(typeId: 3)
-class BeneficiaryModel extends HiveObject {
-  @HiveField(0)
+class BeneficiaryModel {
   final String name;
-
-  @HiveField(1)
   final String detail;
-
-  @HiveField(2)
   final bool isBank;
-
-  @HiveField(3)
   final String? bank;
 
   BeneficiaryModel({
@@ -21,7 +13,33 @@ class BeneficiaryModel extends HiveObject {
     this.bank,
   });
 
-  Map<String, String> toMap() {
+  BeneficiaryModel copyWith({
+    String? name,
+    String? detail,
+    bool? isBank,
+    String? bank,
+  }) {
+    return BeneficiaryModel(
+      name: name ?? this.name,
+      detail: detail ?? this.detail,
+      isBank: isBank ?? this.isBank,
+      bank: bank ?? this.bank,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    final map = <String, dynamic>{
+      'name': name,
+      'detail': detail,
+      'isBank': isBank,
+    };
+    if (bank != null) {
+      map['bank'] = bank!;
+    }
+    return map;
+  }
+
+  Map<String, String> toRecipientMap() {
     final map = <String, String>{
       'name': name,
       'detail': detail,
@@ -31,37 +49,37 @@ class BeneficiaryModel extends HiveObject {
     }
     return map;
   }
-}
 
-class BeneficiaryModelAdapter extends TypeAdapter<BeneficiaryModel> {
-  @override
-  final int typeId = 3;
+  factory BeneficiaryModel.fromMap(Map<dynamic, dynamic> map) {
+    bool parseBool(dynamic val, bool defaultValue) {
+      if (val == null) return defaultValue;
+      if (val is bool) return val;
+      final str = val.toString().toLowerCase();
+      if (str == 'true' || str == '1') return true;
+      if (str == 'false' || str == '0') return false;
+      return defaultValue;
+    }
 
-  @override
-  BeneficiaryModel read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
     return BeneficiaryModel(
-      name: fields[0] as String? ?? '',
-      detail: fields[1] as String? ?? '',
-      isBank: fields[2] as bool? ?? false,
-      bank: fields[3] as String?,
+      name: map['name']?.toString() ?? '',
+      detail: map['detail']?.toString() ?? '',
+      isBank: parseBool(map['isBank'], false),
+      bank: map['bank']?.toString(),
     );
   }
 
+  Map<String, dynamic> toJson() => toMap();
+
+  factory BeneficiaryModel.fromJson(Map<String, dynamic> json) =>
+      BeneficiaryModel.fromMap(json);
+
+  String toRawJson() => jsonEncode(toMap());
+
+  factory BeneficiaryModel.fromRawJson(String source) =>
+      BeneficiaryModel.fromMap(jsonDecode(source) as Map<dynamic, dynamic>);
+
   @override
-  void write(BinaryWriter writer, BeneficiaryModel obj) {
-    writer
-      ..writeByte(4)
-      ..writeByte(0)
-      ..write(obj.name)
-      ..writeByte(1)
-      ..write(obj.detail)
-      ..writeByte(2)
-      ..write(obj.isBank)
-      ..writeByte(3)
-      ..write(obj.bank);
+  String toString() {
+    return 'BeneficiaryModel(name: $name, detail: $detail, isBank: $isBank, bank: $bank)';
   }
 }

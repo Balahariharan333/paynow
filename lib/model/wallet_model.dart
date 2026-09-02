@@ -1,20 +1,10 @@
-import 'package:hive/hive.dart';
+import 'dart:convert';
 
-@HiveType(typeId: 2)
-class WalletModel extends HiveObject {
-  @HiveField(0)
+class WalletModel {
   final double balance;
-
-  @HiveField(1)
   final bool isCardFrozen;
-
-  @HiveField(2)
   final double dailyLimit;
-
-  @HiveField(3)
   final double monthlyLimit;
-
-  @HiveField(4)
   final List<Map<String, String>> linkedBanks;
 
   WalletModel({
@@ -52,20 +42,19 @@ class WalletModel extends HiveObject {
       linkedBanks: linkedBanks ?? this.linkedBanks,
     );
   }
-}
 
-class WalletModelAdapter extends TypeAdapter<WalletModel> {
-  @override
-  final int typeId = 2;
-
-  @override
-  WalletModel read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+  Map<String, dynamic> toMap() {
+    return {
+      'balance': balance,
+      'isCardFrozen': isCardFrozen,
+      'dailyLimit': dailyLimit,
+      'monthlyLimit': monthlyLimit,
+      'linkedBanks': linkedBanks,
     };
+  }
 
-    final rawBanks = fields[4] as List?;
+  factory WalletModel.fromMap(Map<dynamic, dynamic> map) {
+    final rawBanks = map['linkedBanks'] as List?;
     final List<Map<String, String>> parsedBanks = [];
     if (rawBanks != null) {
       for (final item in rawBanks) {
@@ -75,28 +64,36 @@ class WalletModelAdapter extends TypeAdapter<WalletModel> {
       }
     }
 
+    bool parseBool(dynamic val, bool defaultValue) {
+      if (val == null) return defaultValue;
+      if (val is bool) return val;
+      final str = val.toString().toLowerCase();
+      if (str == 'true' || str == '1') return true;
+      if (str == 'false' || str == '0') return false;
+      return defaultValue;
+    }
+
     return WalletModel(
-      balance: (fields[0] as num?)?.toDouble() ?? 12450.75,
-      isCardFrozen: fields[1] as bool? ?? false,
-      dailyLimit: (fields[2] as num?)?.toDouble() ?? 50000.0,
-      monthlyLimit: (fields[3] as num?)?.toDouble() ?? 200000.0,
+      balance: (map['balance'] as num?)?.toDouble() ?? 12450.75,
+      isCardFrozen: parseBool(map['isCardFrozen'], false),
+      dailyLimit: (map['dailyLimit'] as num?)?.toDouble() ?? 50000.0,
+      monthlyLimit: (map['monthlyLimit'] as num?)?.toDouble() ?? 200000.0,
       linkedBanks: parsedBanks.isNotEmpty ? parsedBanks : null,
     );
   }
 
+  Map<String, dynamic> toJson() => toMap();
+
+  factory WalletModel.fromJson(Map<String, dynamic> json) =>
+      WalletModel.fromMap(json);
+
+  String toRawJson() => jsonEncode(toMap());
+
+  factory WalletModel.fromRawJson(String source) =>
+      WalletModel.fromMap(jsonDecode(source) as Map<dynamic, dynamic>);
+
   @override
-  void write(BinaryWriter writer, WalletModel obj) {
-    writer
-      ..writeByte(5)
-      ..writeByte(0)
-      ..write(obj.balance)
-      ..writeByte(1)
-      ..write(obj.isCardFrozen)
-      ..writeByte(2)
-      ..write(obj.dailyLimit)
-      ..writeByte(3)
-      ..write(obj.monthlyLimit)
-      ..writeByte(4)
-      ..write(obj.linkedBanks);
+  String toString() {
+    return 'WalletModel(balance: $balance, isCardFrozen: $isCardFrozen, dailyLimit: $dailyLimit, monthlyLimit: $monthlyLimit, linkedBanks: $linkedBanks)';
   }
 }
