@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/utils/app_colors.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/widget/custom_text.dart';
-import 'package:paynow/screen/payment/transfer/contact_transfer_screen.dart';
 
 class TransactionDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> transaction;
@@ -209,14 +209,13 @@ class TransactionDetailsScreen extends StatelessWidget {
             onPressed: () {
               if (isSuccess) {
                 // Navigate back to transfer screen
-                Navigator.push(
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => ContactTransferScreen(
-                      contactName: title,
-                      contactDetail: 'Recipient',
-                    ),
-                  ),
+                  RouteConstants.contactTransfer,
+                  arguments: {
+                    'contactName': title,
+                    'contactDetail': 'Recipient',
+                  },
                 );
               } else {
                 // Retry transfer

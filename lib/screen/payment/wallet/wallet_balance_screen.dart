@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_state.dart';
-import 'package:paynow/screen/onboarding/link_bank_screen.dart';
-import 'package:paynow/screen/payment/rewards/rewards_home_screen.dart';
-import 'package:paynow/screen/payment/wallet/add_money_screen.dart';
-import 'package:paynow/screen/payment/wallet/withdraw_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/bank_balance_tile.dart';
@@ -48,18 +45,8 @@ class WalletBalanceScreen extends StatelessWidget {
                   final double balance = state is WalletLoaded ? state.balance : 12450.85;
                   return WalletSummaryCard(
                     balance: 'Rs ${balance.toStringAsFixed(2)}',
-                    onAddMoney: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const AddMoneyScreen()),
-                      );
-                    },
-                    onWithdraw: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const WithdrawScreen()),
-                      );
-                    },
+                    onAddMoney: () => Navigator.pushNamed(context, RouteConstants.addMoney),
+                    onWithdraw: () => Navigator.pushNamed(context, RouteConstants.withdraw),
                   );
                 },
               ),
@@ -71,14 +58,7 @@ class WalletBalanceScreen extends StatelessWidget {
                 children: [
                   CustomText.header('Linked Bank Accounts', fontSize: 16, color: AppColors.grayFont),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LinkBankScreen(isFromOnboarding: false),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.pushNamed(context, RouteConstants.linkBank, arguments: false),
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: Responsive.w(8), vertical: Responsive.h(4)),
                       color: Colors.transparent,
@@ -130,12 +110,7 @@ class WalletBalanceScreen extends StatelessWidget {
               
               // Reward Coins Tile
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const RewardsHomeScreen()),
-                  );
-                },
+                onTap: () => Navigator.pushNamed(context, RouteConstants.rewardsHome),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: Responsive.w(16), vertical: Responsive.h(16)),
                   decoration: BoxDecoration(

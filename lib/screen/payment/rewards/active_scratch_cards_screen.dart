@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
-import 'package:paynow/screen/payment/rewards/scratch_card_detail_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 
 class ActiveScratchCardsScreen extends StatelessWidget {
   const ActiveScratchCardsScreen({super.key});
@@ -63,18 +63,15 @@ class ActiveScratchCardsScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final card = cards[index];
                   return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ScratchCardDetailScreen(
-                            amount: card['amount']!,
-                            type: card['type']!,
-                            subtitle: card['sub']!,
-                          ),
-                        ),
-                      );
-                    },
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      RouteConstants.scratchCardDetail,
+                      arguments: {
+                        'amount': card['amount']!,
+                        'type': card['type']!,
+                        'subtitle': card['sub']!,
+                      },
+                    ),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,

@@ -78,7 +78,7 @@ class WalletModel {
       isCardFrozen: parseBool(map['isCardFrozen'], false),
       dailyLimit: (map['dailyLimit'] as num?)?.toDouble() ?? 50000.0,
       monthlyLimit: (map['monthlyLimit'] as num?)?.toDouble() ?? 200000.0,
-      linkedBanks: parsedBanks.isNotEmpty ? parsedBanks : null,
+      linkedBanks: rawBanks != null ? parsedBanks : null,
     );
   }
 

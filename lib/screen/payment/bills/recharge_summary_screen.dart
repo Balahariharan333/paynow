@@ -7,7 +7,7 @@ import 'package:paynow/bloc/transaction/transaction_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_event.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_event.dart';
-import 'package:paynow/screen/payment/bills/recharge_success_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -239,14 +239,13 @@ class RechargeSummaryScreen extends StatelessWidget {
                           price: total,
                         ));
 
-                    Navigator.push(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => RechargeSuccessScreen(
-                          amount: 'Rs ${total.toStringAsFixed(2)}',
-                          recipientNumber: recipient,
-                        ),
-                      ),
+                      RouteConstants.rechargeSuccess,
+                      arguments: {
+                        'amount': 'Rs ${total.toStringAsFixed(2)}',
+                        'recipientNumber': recipient,
+                      },
                     );
                   },
                   style: ElevatedButton.styleFrom(

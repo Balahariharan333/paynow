@@ -15,6 +15,7 @@ import 'package:paynow/utils/app_constants.dart';
 import 'package:paynow/utils/app_theme.dart';
 import 'package:paynow/bloc/theme/theme_bloc.dart';
 import 'package:paynow/bloc/theme/theme_state.dart';
+import 'package:paynow/routes/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +73,7 @@ class MainApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: state.themeMode,
+            onGenerateRoute: AppRouter.generateRoute,
             scrollBehavior: const MaterialScrollBehavior().copyWith(
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             ),

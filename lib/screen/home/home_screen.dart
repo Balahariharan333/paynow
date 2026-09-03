@@ -7,15 +7,7 @@ import 'package:paynow/bloc/transaction/transaction_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_state.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_state.dart';
-import 'package:paynow/screen/home/history_screen.dart';
-import 'package:paynow/screen/home/notifications_screen.dart';
-import 'package:paynow/screen/payment/bills/bills_dashboard_screen.dart';
-import 'package:paynow/screen/payment/transfer/transfer_home_screen.dart';
-import 'package:paynow/screen/payment/wallet/add_money_screen.dart';
-import 'package:paynow/screen/payment/wallet/withdraw_screen.dart';
-import 'package:paynow/screen/profile/profile_settings_screen.dart';
-import 'package:paynow/screen/settings/card_details_screen.dart';
-import 'package:paynow/screen/transaction/transaction_details_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -60,6 +52,17 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 12) {
+      return 'Good Morning';
+    } else if (hour >= 12 && hour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
+  }
+
   Widget _buildHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -69,12 +72,7 @@ class HomeScreen extends StatelessWidget {
             Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ProfileSettingsScreen()),
-                  );
-                },
+                onTap: () => Navigator.pushNamed(context, RouteConstants.profileSettings),
                 borderRadius: BorderRadius.circular(25),
                 child: SizedBox(
                   width: Responsive.w(50),
@@ -89,14 +87,21 @@ class HomeScreen extends StatelessWidget {
                           shape: BoxShape.circle,
                           border: Border.all(color: AppColors.black, width: Responsive.w(1.5)),
                         ),
-                        child: const Center(
-                          child: Text(
-                            'A',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.black,
-                            ),
+                        child: Center(
+                          child: BlocBuilder<ProfileBloc, ProfileState>(
+                            builder: (context, profileState) {
+                              final name = profileState is ProfileLoaded && profileState.name.isNotEmpty
+                                  ? profileState.name
+                                  : 'U';
+                              return Text(
+                                name[0].toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.black,
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -128,12 +133,14 @@ class HomeScreen extends StatelessWidget {
             SizedBox(width: Responsive.w(12)),
             BlocBuilder<ProfileBloc, ProfileState>(
               builder: (context, profileState) {
-                final name = profileState is ProfileLoaded ? profileState.name : 'Alex';
+                final name = profileState is ProfileLoaded && profileState.name.isNotEmpty
+                    ? profileState.name
+                    : 'User';
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomText.body(
-                      'Good Morning,',
+                      '${_getGreeting()},',
                       color: AppColors.grayFont,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -149,12 +156,7 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const NotificationsScreen()),
-            );
-          },
+          onTap: () => Navigator.pushNamed(context, RouteConstants.notifications),
           child: Container(
             width: Responsive.w(45),
             height: Responsive.h(45),
@@ -451,60 +453,35 @@ class HomeScreen extends StatelessWidget {
               label: 'Add',
               backgroundColor: AppColors.primaryGradientStart,
               iconColor: AppColors.white,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AddMoneyScreen()),
-                );
-              },
+              onTap: () => Navigator.pushNamed(context, RouteConstants.addMoney),
             ),
             _buildActionItem(
               icon: Icons.send,
               label: 'Transfer',
               backgroundColor: Theme.of(context).cardColor,
               iconColor: AppColors.primaryGradientStart,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TransferHomeScreen()),
-                );
-              },
+              onTap: () => Navigator.pushNamed(context, RouteConstants.transferHome),
             ),
             _buildActionItem(
               icon: Icons.account_balance,
               label: 'Withdraw',
               backgroundColor: Theme.of(context).cardColor,
               iconColor: AppColors.primaryGradientStart,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const WithdrawScreen()),
-                );
-              },
+              onTap: () => Navigator.pushNamed(context, RouteConstants.withdraw),
             ),
             _buildActionItem(
               icon: Icons.receipt_long,
               label: 'Bills',
               backgroundColor: Theme.of(context).cardColor,
               iconColor: AppColors.primaryGradientStart,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const BillsDashboardScreen()),
-                );
-              },
+              onTap: () => Navigator.pushNamed(context, RouteConstants.billsDashboard),
             ),
             _buildActionItem(
               icon: Icons.ac_unit,
               label: 'Freeze',
               backgroundColor: AppColors.tintRed,
               iconColor: AppColors.errorRed,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CardDetailsScreen()),
-                );
-              },
+              onTap: () => Navigator.pushNamed(context, RouteConstants.cardDetails),
             ),
           ],
         ),
@@ -551,32 +528,36 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildPromoBanner(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(Responsive.w(16)),
-      decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).cardColor : AppColors.promoGray,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.info_outline, color: AppColors.primary, size: Responsive.w(24)),
-          SizedBox(width: Responsive.w(12)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomText.title('Special Offer Available!', fontSize: 13),
-                SizedBox(height: Responsive.h(2)),
-                CustomText.body(
-                  'Get up to Rs 500 cashback on mobile recharges today.',
-                  color: AppColors.grayFont,
-                  fontSize: 11,
-                ),
-              ],
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, RouteConstants.mobileRecharge),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(Responsive.w(16)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).cardColor : AppColors.promoGray,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.discount_outlined, color: AppColors.primary, size: Responsive.w(24)),
+            SizedBox(width: Responsive.w(12)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText.title('Special Offer Available!', fontSize: 13),
+                  SizedBox(height: Responsive.h(2)),
+                  CustomText.body(
+                    'Get up to Rs 500 cashback on mobile recharges today.',
+                    color: AppColors.grayFont,
+                    fontSize: 11,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            const Icon(Icons.arrow_forward_ios, color: AppColors.primary, size: 14),
+          ],
+        ),
       ),
     );
   }
@@ -592,12 +573,7 @@ class HomeScreen extends StatelessWidget {
               fontSize: 14,
             ),
             GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HistoryScreen()),
-                );
-              },
+              onTap: () => Navigator.pushNamed(context, RouteConstants.history),
               child: CustomText.title(
                 'View All',
                 color: AppColors.primaryGradientStart,
@@ -625,11 +601,10 @@ class HomeScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushNamed(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => TransactionDetailsScreen(transaction: tx),
-                        ),
+                        RouteConstants.transactionDetails,
+                        arguments: tx,
                       );
                     },
                     child: Container(

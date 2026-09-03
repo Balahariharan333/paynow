@@ -13,6 +13,7 @@ class ProfileInitial extends ProfileState {
 
 class ProfileLoaded extends ProfileState {
   final String name;
+  final String email;
   final String phone;
   final String upiId;
   final String mpin;
@@ -21,9 +22,10 @@ class ProfileLoaded extends ProfileState {
   final bool darkModeEnabled;
 
   const ProfileLoaded({
-    this.name = 'Alex',
+    this.name = 'PayNow User',
+    this.email = 'user@paynow.com',
     this.phone = '+91 98765 43210',
-    this.upiId = 'alex@paynow',
+    this.upiId = 'user@paynow',
     this.mpin = '1234',
     this.notificationsEnabled = true,
     this.biometricsEnabled = false,
@@ -32,6 +34,7 @@ class ProfileLoaded extends ProfileState {
 
   ProfileLoaded copyWith({
     String? name,
+    String? email,
     String? phone,
     String? upiId,
     String? mpin,
@@ -41,6 +44,7 @@ class ProfileLoaded extends ProfileState {
   }) {
     return ProfileLoaded(
       name: name ?? this.name,
+      email: email ?? this.email,
       phone: phone ?? this.phone,
       upiId: upiId ?? this.upiId,
       mpin: mpin ?? this.mpin,
@@ -53,6 +57,7 @@ class ProfileLoaded extends ProfileState {
   @override
   List<Object?> get props => [
         name,
+        email,
         phone,
         upiId,
         mpin,

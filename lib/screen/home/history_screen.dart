@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_event.dart';
 import 'package:paynow/bloc/transaction/transaction_state.dart';
-import 'package:paynow/screen/transaction/transaction_details_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -34,15 +34,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Custom App Bar with Left Title & Back Button
-            Padding(
+              Padding(
               padding: EdgeInsets.symmetric(horizontal: Responsive.w(20.0), vertical: Responsive.h(12.0)),
-              child: Row(
-                children: [
+                child: Row(
+                  children: [
                  
-                  CustomText.header('History', fontSize: 22),
-                ],
+                    CustomText.header('History', fontSize: 22),
+                  ],
+                ),
               ),
-            ),
             
             // Search Input
             Padding(
@@ -141,11 +141,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                               return GestureDetector(
                                 onTap: () {
-                                  Navigator.push(
+                                  Navigator.pushNamed(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (context) => TransactionDetailsScreen(transaction: tx),
-                                    ),
+                                    RouteConstants.transactionDetails,
+                                    arguments: tx,
                                   );
                                 },
                                 child: HistoryTransactionItem(

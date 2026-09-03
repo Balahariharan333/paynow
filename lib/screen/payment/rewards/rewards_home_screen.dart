@@ -4,9 +4,7 @@ import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
 import 'package:paynow/widget/offer_card_tile.dart';
-import 'package:paynow/screen/payment/rewards/active_scratch_cards_screen.dart';
-import 'package:paynow/screen/payment/rewards/exclusive_offers_screen.dart';
-import 'package:paynow/screen/payment/rewards/refer_and_earn_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 
 class RewardsHomeScreen extends StatelessWidget {
   const RewardsHomeScreen({super.key});
@@ -42,12 +40,7 @@ class RewardsHomeScreen extends StatelessWidget {
                 children: [
                   CustomText.header('Active Scratch Cards', fontSize: 16, color: AppColors.grayFont),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const ActiveScratchCardsScreen()),
-                      );
-                    },
+                    onTap: () => Navigator.pushNamed(context, RouteConstants.activeScratchCards),
                     child: CustomText.body('View All', color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -170,12 +163,7 @@ class RewardsHomeScreen extends StatelessWidget {
                 children: [
                   CustomText.header('Exclusive Offers', fontSize: 16, color: AppColors.grayFont),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const ExclusiveOffersScreen()),
-                      );
-                    },
+                    onTap: () => Navigator.pushNamed(context, RouteConstants.exclusiveOffers),
                     child: CustomText.body('Explore All', color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -218,12 +206,7 @@ class RewardsHomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: Responsive.h(16)),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const ReferAndEarnScreen()),
-                        );
-                      },
+                      onPressed: () => Navigator.pushNamed(context, RouteConstants.referAndEarn),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
@@ -251,12 +234,7 @@ class RewardsHomeScreen extends StatelessWidget {
     required List<Color> gradient,
   }) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ActiveScratchCardsScreen()),
-        );
-      },
+      onTap: () => Navigator.pushNamed(context, RouteConstants.activeScratchCards),
       child: Container(
         width: Responsive.w(100),
         padding: EdgeInsets.symmetric(horizontal: Responsive.w(10), vertical: Responsive.h(16)),

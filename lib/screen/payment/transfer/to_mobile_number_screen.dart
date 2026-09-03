@@ -5,7 +5,7 @@ import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
 import 'package:paynow/widget/search_text_field.dart';
 import 'package:paynow/widget/contact_avatar.dart';
-import 'package:paynow/screen/payment/transfer/contact_transfer_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 
 class ToMobileNumberScreen extends StatefulWidget {
   const ToMobileNumberScreen({super.key});
@@ -101,14 +101,13 @@ class _ToMobileNumberScreenState extends State<ToMobileNumberScreen> {
                   if (isSearchingNumber) ...[
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushNamed(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => ContactTransferScreen(
-                              contactName: _searchQuery,
-                              contactDetail: 'Mobile Transfer',
-                            ),
-                          ),
+                          RouteConstants.contactTransfer,
+                          arguments: {
+                            'contactName': _searchQuery,
+                            'contactDetail': 'Mobile Transfer',
+                          },
                         );
                       },
                       child: Container(
@@ -171,14 +170,13 @@ class _ToMobileNumberScreenState extends State<ToMobileNumberScreen> {
                         padding: EdgeInsets.only(bottom: 12.0),
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.push(
+                            Navigator.pushNamed(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => ContactTransferScreen(
-                                  contactName: contact['name']!,
-                                  contactDetail: contact['phone']!,
-                                ),
-                              ),
+                              RouteConstants.contactTransfer,
+                              arguments: {
+                                'contactName': contact['name']!,
+                                'contactDetail': contact['phone']!,
+                              },
                             );
                           },
                           child: Container(

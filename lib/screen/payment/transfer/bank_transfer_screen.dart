@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_event.dart';
 import 'package:paynow/bloc/transaction/transaction_state.dart';
-import 'package:paynow/screen/payment/transfer/contact_transfer_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -72,13 +72,13 @@ class _BankTransferScreenState extends State<BankTransferScreen> {
                 ),
                 SizedBox(height: Responsive.h(16)),
                 // Recipient Name
-                _buildTextField(_nameController, 'Recipient Name', 'e.g. John Doe'),
+                _buildTextField(_nameController, 'Recipient Name', 'e.g. Recipient Name'),
                 SizedBox(height: Responsive.h(14)),
                 // Account details
                 _buildTextField(
                   _detailController,
                   isBank ? 'Account Number / Details' : 'UPI ID / Handle',
-                  isBank ? 'e.g. 1029384756' : 'e.g. johndoe@paynow',
+                  isBank ? 'e.g. 1029384756' : 'e.g. username@paynow',
                 ),
                 if (isBank) ...[
                   SizedBox(height: Responsive.h(14)),
@@ -284,17 +284,14 @@ class _BankTransferScreenState extends State<BankTransferScreen> {
               final leadingIcon = isBank ? Icons.account_balance : Icons.alternate_email;
               
               return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ContactTransferScreen(
-                        contactName: account['name']!,
-                        contactDetail: account['detail']!,
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  RouteConstants.contactTransfer,
+                  arguments: {
+                    'contactName': account['name']!,
+                    'contactDetail': account['detail']!,
+                  },
+                ),
                 child: Container(
                   padding: EdgeInsets.all(Responsive.w(16)),
                   decoration: BoxDecoration(

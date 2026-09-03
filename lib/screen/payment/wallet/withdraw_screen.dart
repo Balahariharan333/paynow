@@ -6,8 +6,9 @@ import 'package:paynow/bloc/transaction/transaction_event.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_event.dart';
 import 'package:paynow/bloc/wallet/wallet_state.dart';
-import 'package:paynow/screen/onboarding/link_bank_screen.dart';
-import 'package:paynow/screen/payment/wallet/transaction_success_screen.dart';
+import 'package:paynow/bloc/profile/profile_bloc.dart';
+import 'package:paynow/bloc/profile/profile_state.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/amount_formatter.dart';
 import 'package:paynow/utils/responsive_helper.dart';
@@ -42,6 +43,17 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
     super.dispose();
   }
 
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 12) {
+      return 'Good Morning';
+    } else if (hour >= 12 && hour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -56,7 +68,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
 
             return Column(
               children: [
-                // Header: Good Morning, Alex & Notification Icon
+                // Header: Greeting & Notification Icon
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: Responsive.w(16.0), vertical: Responsive.h(12.0)),
                   child: Row(
@@ -74,40 +86,50 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                             ),
                           ),
                           SizedBox(width: Responsive.w(8)),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomText.body(
-                                'Good Morning,',
-                                color: AppColors.grayFont,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              CustomText.title(
-                                'Alex',
-                                fontSize: 15,
-                              ),
-                            ],
+                          BlocBuilder<ProfileBloc, ProfileState>(
+                            builder: (context, profState) {
+                              final name = profState is ProfileLoaded && profState.name.isNotEmpty
+                                  ? profState.name
+                                  : 'User';
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomText.body(
+                                    '${_getGreeting()},',
+                                    color: AppColors.grayFont,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  CustomText.title(
+                                    name,
+                                    fontSize: 15,
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),
-                      Container(
-                        width: Responsive.w(40),
-                        height: Responsive.h(40),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.notifications_outlined,
-                          color: AppColors.black,
+                      GestureDetector(
+                        onTap: () => Navigator.pushNamed(context, RouteConstants.notifications),
+                        child: Container(
+                          width: Responsive.w(40),
+                          height: Responsive.h(40),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.notifications_outlined,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ],
@@ -289,14 +311,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                           children: [
                             CustomText.title('Destination', fontSize: 14),
                             GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const LinkBankScreen(isFromOnboarding: false),
-                                  ),
-                                );
-                              },
+                              onTap: () => Navigator.pushNamed(context, RouteConstants.linkBank, arguments: false),
                               child: Container(
                                 padding: EdgeInsets.symmetric(horizontal: Responsive.w(8), vertical: Responsive.h(4)),
                                 color: Colors.transparent,
@@ -412,16 +427,15 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                                     iconColor: AppColors.errorRed,
                                   ));
 
-                              Navigator.push(
+                              Navigator.pushNamed(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => TransactionSuccessScreen(
-                                    isWithdrawal: true,
-                                    amount: _selectedAmount,
-                                    destinationName: '${selectedBank['bankName']} (${selectedBank['accountNumber']})',
-                                    destinationIcon: selectedBank['icon'] as IconData,
-                                  ),
-                                ),
+                                RouteConstants.transactionSuccess,
+                                arguments: {
+                                  'isWithdrawal': true,
+                                  'amount': _selectedAmount,
+                                  'destinationName': '${selectedBank['bankName']} (${selectedBank['accountNumber']})',
+                                  'destinationIcon': selectedBank['icon'] as IconData,
+                                },
                               );
                             },
                       style: ElevatedButton.styleFrom(

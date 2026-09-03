@@ -1,4 +1,4 @@
-﻿import 'package:equatable/equatable.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 abstract class WalletEvent extends Equatable {
@@ -96,4 +96,22 @@ class AddLinkedBankDirectEvent extends WalletEvent {
 
 class ResetLinkBankEvent extends WalletEvent {
   const ResetLinkBankEvent();
+}
+
+class UnlinkBankEvent extends WalletEvent {
+  final int index;
+
+  const UnlinkBankEvent(this.index);
+
+  @override
+  List<Object?> get props => [index];
+}
+
+class SetPrimaryBankEvent extends WalletEvent {
+  final int index;
+
+  const SetPrimaryBankEvent(this.index);
+
+  @override
+  List<Object?> get props => [index];
 }

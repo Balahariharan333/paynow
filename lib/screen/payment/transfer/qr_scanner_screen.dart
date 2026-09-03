@@ -1,7 +1,7 @@
 // ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:paynow/screen/payment/transfer/contact_transfer_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -46,14 +46,13 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
       name = rawValue.split('@')[0];
     }
 
-    Navigator.pushReplacement(
+    Navigator.pushReplacementNamed(
       context,
-      MaterialPageRoute(
-        builder: (context) => ContactTransferScreen(
-          contactName: name,
-          contactDetail: detail,
-        ),
-      ),
+      RouteConstants.contactTransfer,
+      arguments: {
+        'contactName': name,
+        'contactDetail': detail,
+      },
     );
   }
 

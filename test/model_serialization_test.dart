@@ -40,9 +40,9 @@ void main() {
 
     test('Handles fallback for empty map gracefully', () {
       final restored = UserProfileModel.fromMap({});
-      expect(restored.name, 'Alex');
+      expect(restored.name, 'PayNow User');
       expect(restored.phone, '+91 98765 43210');
-      expect(restored.upiId, 'alex@paynow');
+      expect(restored.upiId, 'user@paynow');
       expect(restored.mpin, '1234');
       expect(restored.notificationsEnabled, true);
       expect(restored.biometricsEnabled, true);

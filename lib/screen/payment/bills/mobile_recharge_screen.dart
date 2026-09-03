@@ -5,7 +5,7 @@ import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
 import 'package:paynow/widget/search_text_field.dart';
 import 'package:paynow/widget/contact_avatar.dart';
-import 'package:paynow/screen/payment/bills/select_plan_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 
 class MobileRechargeScreen extends StatelessWidget {
   const MobileRechargeScreen({super.key});
@@ -87,18 +87,15 @@ class MobileRechargeScreen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final recent = recents[index];
                         return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SelectPlanScreen(
-                                  contactName: recent['name']!,
-                                  phoneNumber: recent['phone']!,
-                                  operatorName: 'Jio Prepaid',
-                                ),
-                              ),
-                            );
-                          },
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            RouteConstants.selectPlan,
+                            arguments: {
+                              'contactName': recent['name']!,
+                              'phoneNumber': recent['phone']!,
+                              'operatorName': 'Jio Prepaid',
+                            },
+                          ),
                           child: Column(
                             children: [
                               ContactAvatar(name: recent['name']!, radius: 20),
@@ -128,18 +125,15 @@ class MobileRechargeScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final op = operators[index];
                       return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SelectPlanScreen(
-                                contactName: 'New Recharge',
-                                phoneNumber: '+91 98765 43210',
-                                operatorName: op['name']!,
-                              ),
-                            ),
-                          );
-                        },
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          RouteConstants.selectPlan,
+                          arguments: {
+                            'contactName': 'New Recharge',
+                            'phoneNumber': '+91 98765 43210',
+                            'operatorName': op['name']!,
+                          },
+                        ),
                         child: Container(
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
@@ -166,18 +160,15 @@ class MobileRechargeScreen extends StatelessWidget {
                     return Padding(
                       padding: EdgeInsets.only(bottom: 12.0),
                       child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SelectPlanScreen(
-                                contactName: contact['name']!,
-                                phoneNumber: contact['phone']!,
-                                operatorName: 'Jio Prepaid',
-                              ),
-                            ),
-                          );
-                        },
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          RouteConstants.selectPlan,
+                          arguments: {
+                            'contactName': contact['name']!,
+                            'phoneNumber': contact['phone']!,
+                            'operatorName': 'Jio Prepaid',
+                          },
+                        ),
                         child: Container(
                           padding: EdgeInsets.all(Responsive.w(12)),
                           decoration: BoxDecoration(

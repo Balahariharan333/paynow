@@ -1,5 +1,6 @@
 // ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -290,6 +291,31 @@ class TransactionSuccessScreen extends StatelessWidget {
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 15,
                       ),
+                    ),
+                  ),
+                  SizedBox(height: Responsive.h(12)),
+                  TextButton.icon(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(
+                        text: 'PayNow Transaction Receipt\nAmount: Rs $amount\nDestination: $destinationName\nType: ${isWithdrawal ? 'Withdrawal' : 'Transfer'}\nStatus: SUCCESSFUL\nDate: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}\nRef: TXN${DateTime.now().millisecondsSinceEpoch}',
+                      ));
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Transaction receipt copied to clipboard!'),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.share, size: 18, color: AppColors.primary),
+                    label: CustomText.title(
+                      'Share Receipt',
+                      color: AppColors.primary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],

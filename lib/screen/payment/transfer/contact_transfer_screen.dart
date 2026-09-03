@@ -9,7 +9,7 @@ import 'package:paynow/bloc/transaction/transaction_state.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_event.dart';
 import 'package:paynow/bloc/wallet/wallet_state.dart';
-import 'package:paynow/screen/payment/wallet/transaction_success_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/amount_formatter.dart';
 import 'package:paynow/utils/responsive_helper.dart';
@@ -98,18 +98,16 @@ class _ContactTransferScreenState extends State<ContactTransferScreen> {
           type: 'Sent',
         ));
 
-    // Push Success Screen with chat navigation enabled
-    Navigator.push(
+    Navigator.pushNamed(
       context,
-      MaterialPageRoute(
-        builder: (context) => TransactionSuccessScreen(
-          isWithdrawal: false,
-          isFromChat: true,
-          amount: amountVal.toStringAsFixed(2),
-          destinationName: widget.contactName,
-          destinationIcon: Icons.person_outline,
-        ),
-      ),
+      RouteConstants.transactionSuccess,
+      arguments: {
+        'isWithdrawal': false,
+        'isFromChat': true,
+        'amount': amountVal.toStringAsFixed(2),
+        'destinationName': widget.contactName,
+        'destinationIcon': Icons.person_outline,
+      },
     );
   }
 

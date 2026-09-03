@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
-import 'package:paynow/screen/payment/bills/mobile_recharge_screen.dart';
-import 'package:paynow/screen/payment/bills/recharge_summary_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 
 class RechargeDirectoryScreen extends StatelessWidget {
   const RechargeDirectoryScreen({super.key});
@@ -90,6 +89,144 @@ class RechargeDirectoryScreen extends StatelessWidget {
     );
   }
 
+  void _showServicePaymentDialog(BuildContext context, Map<String, dynamic> item) {
+    final String label = item['label'] as String;
+    final IconData icon = item['icon'] as IconData;
+    final idController = TextEditingController();
+    final amountController = TextEditingController(text: '150.00');
+
+    String hintText = 'Account / Consumer Number';
+    if (label.contains('FASTag') || label.contains('Challan') || label.contains('Insurance')) {
+      hintText = 'Vehicle Reg Number (e.g. DL 01 AB 1234)';
+    } else if (label.contains('DTH') || label.contains('Cable')) {
+      hintText = 'Subscriber / Smart Card ID';
+    } else if (label.contains('Broadband')) {
+      hintText = 'Broadband Account ID';
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: EdgeInsets.only(
+            left: Responsive.w(20),
+            right: Responsive.w(20),
+            top: Responsive.h(20),
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + Responsive.h(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.grayFont.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              SizedBox(height: Responsive.h(16)),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, color: AppColors.primary, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomText.title(label, fontSize: 16, fontWeight: FontWeight.bold),
+                        CustomText.body('Bill Payment & Recharge', fontSize: 12, color: AppColors.grayFont),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20, color: AppColors.grayFont),
+                    onPressed: () => Navigator.pop(sheetContext),
+                  ),
+                ],
+              ),
+              const Divider(height: 24),
+              CustomText.title('Consumer / Account ID', fontSize: 13),
+              SizedBox(height: Responsive.h(8)),
+              TextField(
+                controller: idController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  hintStyle: const TextStyle(fontSize: 12, color: AppColors.grayFont),
+                  filled: true,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: EdgeInsets.symmetric(horizontal: Responsive.w(14), vertical: Responsive.h(12)),
+                ),
+              ),
+              SizedBox(height: Responsive.h(16)),
+              CustomText.title('Bill Amount', fontSize: 13),
+              SizedBox(height: Responsive.h(8)),
+              TextField(
+                controller: amountController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  prefixText: 'Rs ',
+                  prefixStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
+                  filled: true,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: EdgeInsets.symmetric(horizontal: Responsive.w(14), vertical: Responsive.h(12)),
+                ),
+              ),
+              SizedBox(height: Responsive.h(24)),
+              SizedBox(
+                width: double.infinity,
+                height: Responsive.h(48),
+                child: ElevatedButton(
+                  onPressed: () {
+                    final idText = idController.text.trim();
+                    final amountText = amountController.text.trim();
+                    final double parsedPrice = double.tryParse(amountText) ?? 150.0;
+                    Navigator.pop(sheetContext);
+                    Navigator.pushNamed(
+                      context,
+                      RouteConstants.rechargeSummary,
+                      arguments: {
+                        'recipient': idText.isNotEmpty ? '$label ($idText)' : '$label Service',
+                        'operatorName': label,
+                        'planDetails': '$label Bill Payment',
+                        'price': parsedPrice,
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  child: CustomText.title('Proceed to Pay', color: AppColors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildCategoryDirectory(
     BuildContext context, {
     required String title,
@@ -115,22 +252,9 @@ class RechargeDirectoryScreen extends StatelessWidget {
             return GestureDetector(
               onTap: () {
                 if (item['action'] == 'mobile') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MobileRechargeScreen()),
-                  );
-                } else if (item['action'] == 'electricity') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const RechargeSummaryScreen(
-                        recipient: 'Electricity (AC 9283 4810)',
-                        operatorName: 'State Electricity Board',
-                        planDetails: 'Electricity Bill Payment',
-                        price: 142.50,
-                      ),
-                    ),
-                  );
+                  Navigator.pushNamed(context, RouteConstants.mobileRecharge);
+                } else {
+                  _showServicePaymentDialog(context, item);
                 }
               },
               child: Container(

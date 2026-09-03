@@ -4,8 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/notification/notification_bloc.dart';
 import 'package:paynow/bloc/notification/notification_event.dart';
 import 'package:paynow/bloc/notification/notification_state.dart';
-import 'package:paynow/screen/payment/rewards/rewards_home_screen.dart';
-import 'package:paynow/screen/payment/transfer/contact_transfer_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -16,22 +15,16 @@ class NotificationsScreen extends StatelessWidget {
   void _handleAction(BuildContext context, Map<String, dynamic> notification) {
     final route = notification['route'] as String?;
     if (route == 'chat') {
-      Navigator.push(
+      Navigator.pushNamed(
         context,
-        MaterialPageRoute(
-          builder: (context) => ContactTransferScreen(
-            contactName: notification['contactName'] ?? 'Contact',
-            contactDetail: notification['contactDetail'] ?? '',
-          ),
-        ),
+        RouteConstants.contactTransfer,
+        arguments: {
+          'contactName': notification['contactName'] ?? 'Contact',
+          'contactDetail': notification['contactDetail'] ?? '',
+        },
       );
     } else if (route == 'rewards') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const RewardsHomeScreen(),
-        ),
-      );
+      Navigator.pushNamed(context, RouteConstants.rewardsHome);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_event.dart';
 import 'package:paynow/bloc/wallet/wallet_state.dart';
-import 'package:paynow/screen/home/main_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -116,10 +116,7 @@ class _LinkBankScreenState extends State<LinkBankScreen> {
   void _finish() {
     context.read<WalletBloc>().add(const ResetLinkBankEvent());
     if (widget.isFromOnboarding) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
+      Navigator.pushReplacementNamed(context, RouteConstants.main);
     } else {
       Navigator.pop(context);
     }
@@ -187,12 +184,7 @@ class _LinkBankScreenState extends State<LinkBankScreen> {
               ),
               if (widget.isFromOnboarding)
                 TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MainScreen()),
-                    );
-                  },
+                  onPressed: () => Navigator.pushReplacementNamed(context, RouteConstants.main),
                   child: CustomText.body(
                     'Skip',
                     color: AppColors.primary,

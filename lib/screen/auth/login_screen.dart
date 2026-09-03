@@ -7,7 +7,7 @@ import 'package:paynow/bloc/auth/auth_event.dart';
 import 'package:paynow/bloc/auth/auth_state.dart';
 import 'package:paynow/bloc/profile/profile_bloc.dart';
 import 'package:paynow/bloc/profile/profile_event.dart';
-import 'package:paynow/screen/onboarding/link_bank_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/app_constants.dart';
 import 'package:paynow/utils/responsive_helper.dart';
@@ -74,16 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
           Future.delayed(const Duration(milliseconds: 800), () {
             if (!context.mounted) return;
-            Navigator.pushReplacement(
+            Navigator.pushReplacementNamed(
               context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const LinkBankScreen(isFromOnboarding: true),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                transitionDuration: const Duration(milliseconds: 400),
-              ),
+              RouteConstants.linkBank,
+              arguments: true,
             );
           });
         }

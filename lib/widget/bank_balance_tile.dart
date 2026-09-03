@@ -1,6 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
+
+import 'package:paynow/widget/upi_pin_sheet.dart';
 
 class BankBalanceTile extends StatefulWidget {
   final String bankName;
@@ -20,22 +22,21 @@ class BankBalanceTile extends StatefulWidget {
   State<BankBalanceTile> createState() => _BankBalanceTileState();
 }
 
-enum BalanceCheckingState { initial, checking, loaded }
-
 class _BankBalanceTileState extends State<BankBalanceTile> {
-  BalanceCheckingState _state = BalanceCheckingState.initial;
+  bool _isBalanceRevealed = false;
 
   void _checkBalance() async {
-    setState(() {
-      _state = BalanceCheckingState.checking;
-    });
+    final success = await showUpiPinSheet(
+      context: context,
+      bankName: widget.bankName,
+      accountNumber: widget.accountNumber,
+      balance: widget.mockBalance,
+      icon: widget.icon,
+    );
 
-    // Simulate network delay of 1.5 seconds
-    await Future.delayed(const Duration(milliseconds: 1500));
-
-    if (mounted) {
+    if (success == true && mounted) {
       setState(() {
-        _state = BalanceCheckingState.loaded;
+        _isBalanceRevealed = true;
       });
     }
   }
@@ -94,42 +95,47 @@ class _BankBalanceTileState extends State<BankBalanceTile> {
   }
 
   Widget _buildBalanceAction() {
-    switch (_state) {
-      case BalanceCheckingState.initial:
-        return TextButton(
-          onPressed: _checkBalance,
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: CustomText.title(
-            'Check Balance',
+    if (_isBalanceRevealed) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CustomText.title(
+            widget.mockBalance,
             color: AppColors.primary,
             fontSize: 13,
             fontWeight: FontWeight.bold,
           ),
-        );
-      case BalanceCheckingState.checking:
-        return const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.0),
-          child: SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+          const SizedBox(width: 8),
+          InkWell(
+            onTap: () {
+              setState(() {
+                _isBalanceRevealed = false;
+              });
+            },
+            child: const Icon(
+              Icons.visibility_off_outlined,
+              size: 16,
+              color: AppColors.grayFont,
             ),
           ),
-        );
-      case BalanceCheckingState.loaded:
-        return CustomText.title(
-          widget.mockBalance,
-          color: AppColors.primary,
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-        );
+        ],
+      );
     }
+
+    return TextButton(
+      onPressed: _checkBalance,
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: CustomText.title(
+        'Check Balance',
+        color: AppColors.primary,
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+      ),
+    );
   }
 }

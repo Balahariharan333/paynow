@@ -5,7 +5,7 @@ import 'package:paynow/bloc/transaction/transaction_bloc.dart';
 import 'package:paynow/bloc/transaction/transaction_event.dart';
 import 'package:paynow/bloc/wallet/wallet_bloc.dart';
 import 'package:paynow/bloc/wallet/wallet_event.dart';
-import 'package:paynow/screen/payment/wallet/transaction_success_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/amount_formatter.dart';
 import 'package:paynow/utils/responsive_helper.dart';
@@ -269,18 +269,17 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
                           iconColor: AppColors.primary,
                         ));
 
-                    Navigator.push(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => TransactionSuccessScreen(
-                          isWithdrawal: false,
-                          amount: amountVal.toStringAsFixed(2),
-                          destinationName: destinationName,
-                          destinationIcon: _selectedMethodIndex == 0
-                              ? Icons.account_balance
-                              : Icons.credit_card,
-                        ),
-                      ),
+                      RouteConstants.transactionSuccess,
+                      arguments: {
+                        'isWithdrawal': false,
+                        'amount': amountVal.toStringAsFixed(2),
+                        'destinationName': destinationName,
+                        'destinationIcon': _selectedMethodIndex == 0
+                            ? Icons.account_balance
+                            : Icons.credit_card,
+                      },
                     );
                   },
                   style: ElevatedButton.styleFrom(

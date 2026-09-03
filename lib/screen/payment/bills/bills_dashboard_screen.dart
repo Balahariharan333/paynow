@@ -4,9 +4,7 @@ import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
 import 'package:paynow/widget/search_text_field.dart';
-import 'package:paynow/screen/payment/bills/recharge_directory_screen.dart';
-import 'package:paynow/screen/payment/bills/mobile_recharge_screen.dart';
-import 'package:paynow/screen/payment/bills/recharge_summary_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 
 class BillsDashboardScreen extends StatelessWidget {
   const BillsDashboardScreen({super.key});
@@ -123,19 +121,16 @@ class BillsDashboardScreen extends StatelessWidget {
                       due: 'DUE IN 2 DAYS',
                       amount: 'Rs 142.50',
                       isActive: true,
-                      onPayTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RechargeSummaryScreen(
-                              recipient: 'Electricity (AC 9283 4810)',
-                              operatorName: 'State Electricity Board',
-                              planDetails: 'Electricity Bill Payment',
-                              price: 142.50,
-                            ),
-                          ),
-                        );
-                      },
+                      onPayTap: () => Navigator.pushNamed(
+                        context,
+                        RouteConstants.rechargeSummary,
+                        arguments: {
+                          'recipient': 'Electricity (AC 9283 4810)',
+                          'operatorName': 'State Electricity Board',
+                          'planDetails': 'Electricity Bill Payment',
+                          'price': 142.50,
+                        },
+                      ),
                     ),
                     SizedBox(width: Responsive.w(12)),
                     _buildDueBillCard(
@@ -145,7 +140,18 @@ class BillsDashboardScreen extends StatelessWidget {
                       due: 'PAID - SEP 01',
                       amount: 'Rs 142.50',
                       isActive: false,
-                      onPayTap: () {},
+                      onPayTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          RouteConstants.rechargeSummary,
+                          arguments: {
+                            'recipient': 'Broadband (AC 9283 1102)',
+                            'operatorName': 'Airtel Xstream Fiber',
+                            'planDetails': 'Broadband Monthly Plan',
+                            'price': 142.50,
+                          },
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -273,12 +279,7 @@ class BillsDashboardScreen extends StatelessWidget {
           children: [
             CustomText.header(title, fontSize: 15),
             GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const RechargeDirectoryScreen()),
-                );
-              },
+              onTap: () => Navigator.pushNamed(context, RouteConstants.rechargeDirectory),
               child: const Icon(
                 Icons.arrow_forward_ios,
                 color: AppColors.grayFont,
@@ -297,27 +298,20 @@ class BillsDashboardScreen extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     if (item['action'] == 'mobile_recharge') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const MobileRechargeScreen()),
-                      );
+                      Navigator.pushNamed(context, RouteConstants.mobileRecharge);
                     } else if (item['action'] == 'electricity') {
-                      Navigator.push(
+                      Navigator.pushNamed(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const RechargeSummaryScreen(
-                            recipient: 'Electricity (AC 9283 4810)',
-                            operatorName: 'State Electricity Board',
-                            planDetails: 'Electricity Bill Payment',
-                            price: 142.50,
-                          ),
-                        ),
+                        RouteConstants.rechargeSummary,
+                        arguments: {
+                          'recipient': 'Electricity (AC 9283 4810)',
+                          'operatorName': 'State Electricity Board',
+                          'planDetails': 'Electricity Bill Payment',
+                          'price': 142.50,
+                        },
                       );
                     } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const RechargeDirectoryScreen()),
-                      );
+                      Navigator.pushNamed(context, RouteConstants.rechargeDirectory);
                     }
                   },
                   child: Container(

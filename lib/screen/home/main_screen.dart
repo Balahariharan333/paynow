@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_bottom_nav_bar.dart';
@@ -6,7 +6,7 @@ import 'package:paynow/screen/home/home_screen.dart';
 import 'package:paynow/screen/home/history_screen.dart';
 import 'package:paynow/screen/payment/wallet/wallet_balance_screen.dart';
 import 'package:paynow/screen/payment/rewards/rewards_home_screen.dart';
-import 'package:paynow/screen/payment/transfer/qr_scanner_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -39,12 +39,7 @@ class _MainScreenState extends State<MainScreen> {
       extendBody: true, // Important for BottomAppBar with notch
       body: _screens[_currentIndex],
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const QrScannerScreen()),
-          );
-        },
+        onPressed: () => Navigator.pushNamed(context, RouteConstants.qrScanner),
         backgroundColor: AppColors.primary,
         shape: const CircleBorder(),
         elevation: 0,

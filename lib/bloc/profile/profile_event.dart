@@ -55,3 +55,16 @@ class UpdateProfilePhoneEvent extends ProfileEvent {
   @override
   List<Object?> get props => [phoneNumber];
 }
+
+class UpdateProfileDetailsEvent extends ProfileEvent {
+  final String name;
+  final String email;
+
+  const UpdateProfileDetailsEvent({
+    required this.name,
+    required this.email,
+  });
+
+  @override
+  List<Object?> get props => [name, email];
+}

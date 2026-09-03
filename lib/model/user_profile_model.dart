@@ -2,6 +2,7 @@ import 'dart:convert';
 
 class UserProfileModel {
   final String name;
+  final String email;
   final String phone;
   final String upiId;
   final String mpin;
@@ -10,9 +11,10 @@ class UserProfileModel {
   final bool darkModeEnabled;
 
   UserProfileModel({
-    this.name = 'Alex',
+    this.name = 'PayNow User',
+    this.email = 'user@paynow.com',
     this.phone = '+91 98765 43210',
-    this.upiId = 'alex@paynow',
+    this.upiId = 'user@paynow',
     this.mpin = '1234',
     this.notificationsEnabled = true,
     this.biometricsEnabled = true,
@@ -21,6 +23,7 @@ class UserProfileModel {
 
   UserProfileModel copyWith({
     String? name,
+    String? email,
     String? phone,
     String? upiId,
     String? mpin,
@@ -30,6 +33,7 @@ class UserProfileModel {
   }) {
     return UserProfileModel(
       name: name ?? this.name,
+      email: email ?? this.email,
       phone: phone ?? this.phone,
       upiId: upiId ?? this.upiId,
       mpin: mpin ?? this.mpin,
@@ -42,6 +46,7 @@ class UserProfileModel {
   Map<String, dynamic> toMap() {
     return {
       'name': name,
+      'email': email,
       'phone': phone,
       'upiId': upiId,
       'mpin': mpin,
@@ -62,9 +67,10 @@ class UserProfileModel {
     }
 
     return UserProfileModel(
-      name: map['name']?.toString() ?? 'Alex',
+      name: map['name']?.toString() ?? 'PayNow User',
+      email: map['email']?.toString() ?? 'user@paynow.com',
       phone: map['phone']?.toString() ?? '+91 98765 43210',
-      upiId: map['upiId']?.toString() ?? 'alex@paynow',
+      upiId: map['upiId']?.toString() ?? 'user@paynow',
       mpin: map['mpin']?.toString() ?? '1234',
       notificationsEnabled: parseBool(map['notificationsEnabled'], true),
       biometricsEnabled: parseBool(map['biometricsEnabled'], true),
@@ -84,7 +90,7 @@ class UserProfileModel {
 
   @override
   String toString() {
-    return 'UserProfileModel(name: $name, phone: $phone, upiId: $upiId, mpin: $mpin, notificationsEnabled: $notificationsEnabled, biometricsEnabled: $biometricsEnabled, darkModeEnabled: $darkModeEnabled)';
+    return 'UserProfileModel(name: $name, email: $email, phone: $phone, upiId: $upiId, mpin: $mpin, notificationsEnabled: $notificationsEnabled, biometricsEnabled: $biometricsEnabled, darkModeEnabled: $darkModeEnabled)';
   }
 
   @override
@@ -92,6 +98,7 @@ class UserProfileModel {
     if (identical(this, other)) return true;
     return other is UserProfileModel &&
         other.name == name &&
+        other.email == email &&
         other.phone == phone &&
         other.upiId == upiId &&
         other.mpin == mpin &&
@@ -104,6 +111,7 @@ class UserProfileModel {
   int get hashCode {
     return Object.hash(
       name,
+      email,
       phone,
       upiId,
       mpin,

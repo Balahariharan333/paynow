@@ -4,7 +4,7 @@ import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
 import 'package:paynow/widget/search_text_field.dart';
-import 'package:paynow/screen/payment/bills/recharge_summary_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 
 class SelectPlanScreen extends StatelessWidget {
   final String contactName;
@@ -246,19 +246,16 @@ class SelectPlanScreen extends StatelessWidget {
                 width: double.infinity,
                 height: Responsive.h(44),
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RechargeSummaryScreen(
-                          recipient: phoneNumber,
-                          operatorName: operatorName,
-                          planDetails: '${plan['price']} - ${plan['validity']} Plan',
-                          price: plan['rawPrice']!,
-                        ),
-                      ),
-                    );
-                  },
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    RouteConstants.rechargeSummary,
+                    arguments: {
+                      'recipient': phoneNumber,
+                      'operatorName': operatorName,
+                      'planDetails': '${plan['price']} - ${plan['validity']} Plan',
+                      'price': plan['rawPrice']!,
+                    },
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(

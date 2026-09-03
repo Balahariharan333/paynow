@@ -16,13 +16,18 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     on<StartLinkBankEvent>(_onStartLinkBank);
     on<AddLinkedBankDirectEvent>(_onAddLinkedBankDirect);
     on<ResetLinkBankEvent>(_onResetLinkBank);
+    on<UnlinkBankEvent>(_onUnlinkBank);
+    on<SetPrimaryBankEvent>(_onSetPrimaryBank);
   }
 
   static WalletLoaded _getInitialState() {
     final wallet = HiveService.getWalletData();
     final List<Map<String, dynamic>> banks = [];
 
-    for (final b in wallet.linkedBanks) {
+    for (int i = 0; i < wallet.linkedBanks.length; i++) {
+      final b = wallet.linkedBanks[i];
+      final isPrimary = b['isPrimary'] == 'true' ||
+          (i == 0 && !wallet.linkedBanks.any((x) => x['isPrimary'] == 'true'));
       banks.add({
         'bankName': b['bankName'] ?? 'Bank Account',
         'accountNumber': b['accountNumber']?.startsWith('Ending in') == true
@@ -32,27 +37,13 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
             ? Icons.savings_outlined
             : Icons.account_balance,
         'mockBalance': 'Rs 24,500.00',
+        'isPrimary': isPrimary,
       });
     }
 
     return WalletLoaded(
       balance: wallet.balance,
-      linkedBanks: banks.isNotEmpty
-          ? banks
-          : [
-              {
-                'bankName': 'Chase Bank Platinum',
-                'accountNumber': 'Ending in •••• 4829',
-                'icon': Icons.account_balance,
-                'mockBalance': 'Rs 34,250.00',
-              },
-              {
-                'bankName': 'HSBC Savings',
-                'accountNumber': 'Ending in •••• 1102',
-                'icon': Icons.savings_outlined,
-                'mockBalance': 'Rs 8,920.00',
-              },
-            ],
+      linkedBanks: banks,
       isCardFrozen: wallet.isCardFrozen,
       dailyLimit: wallet.dailyLimit,
     );
@@ -71,6 +62,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         return {
           'bankName': b['bankName']?.toString() ?? '',
           'accountNumber': b['accountNumber']?.toString() ?? '',
+          'isPrimary': (b['isPrimary'] == true).toString(),
         };
       }).toList();
     }
@@ -180,11 +172,13 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     final icon = bank['icon'] as IconData? ?? Icons.account_balance;
     final initialBalance = 5000.0 + (bankName.hashCode.abs() % 45000);
 
+    final bool isFirst = current.linkedBanks.isEmpty;
     final Map<String, dynamic> newBank = {
       'bankName': bankName,
       'accountNumber': mockNumber,
       'icon': icon,
       'mockBalance': 'Rs ${initialBalance.toStringAsFixed(2)}',
+      'isPrimary': isFirst,
     };
 
     final updatedBanks = [...current.linkedBanks, newBank];
@@ -204,11 +198,13 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
       final String lastFour = event.accountNumber.length >= 4
           ? event.accountNumber.substring(event.accountNumber.length - 4)
           : event.accountNumber;
+      final bool isFirst = current.linkedBanks.isEmpty;
       final Map<String, dynamic> newBank = {
         'bankName': event.bankName,
         'accountNumber': 'Ending in •••• $lastFour',
         'icon': event.icon,
         'mockBalance': 'Rs ${event.initialBalance.toStringAsFixed(2)}',
+        'isPrimary': isFirst,
       };
       final updatedBanks = [...current.linkedBanks, newBank];
       emit(current.copyWith(linkedBanks: updatedBanks));
@@ -226,6 +222,43 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         linkingProgressText: '',
         linkingStep: 0,
       ));
+    }
+  }
+
+  void _onUnlinkBank(UnlinkBankEvent event, Emitter<WalletState> emit) {
+    if (state is WalletLoaded) {
+      final current = state as WalletLoaded;
+      if (event.index >= 0 && event.index < current.linkedBanks.length) {
+        final updatedBanks = List<Map<String, dynamic>>.from(current.linkedBanks);
+        final removedBank = updatedBanks.removeAt(event.index);
+
+        // If the removed bank was primary and other banks remain, set the first one as primary
+        if (removedBank['isPrimary'] == true && updatedBanks.isNotEmpty) {
+          updatedBanks[0] = {
+            ...updatedBanks[0],
+            'isPrimary': true,
+          };
+        }
+
+        emit(current.copyWith(linkedBanks: updatedBanks));
+        _persistWallet(linkedBanks: updatedBanks);
+      }
+    }
+  }
+
+  void _onSetPrimaryBank(SetPrimaryBankEvent event, Emitter<WalletState> emit) {
+    if (state is WalletLoaded) {
+      final current = state as WalletLoaded;
+      if (event.index >= 0 && event.index < current.linkedBanks.length) {
+        final updatedBanks = <Map<String, dynamic>>[];
+        for (int i = 0; i < current.linkedBanks.length; i++) {
+          final bank = Map<String, dynamic>.from(current.linkedBanks[i]);
+          bank['isPrimary'] = (i == event.index);
+          updatedBanks.add(bank);
+        }
+        emit(current.copyWith(linkedBanks: updatedBanks));
+        _persistWallet(linkedBanks: updatedBanks);
+      }
     }
   }
 }

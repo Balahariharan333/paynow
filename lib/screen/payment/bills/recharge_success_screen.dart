@@ -1,5 +1,6 @@
 // ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -152,7 +153,21 @@ class RechargeSuccessScreen extends StatelessWidget {
                     width: double.infinity,
                     height: Responsive.h(54),
                     child: OutlinedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(
+                          text: 'PayNow Payment Receipt\nAmount: $amount\nRecipient: $recipientNumber\nStatus: SUCCESSFUL\nDate: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}\nRef ID: TXN${DateTime.now().millisecondsSinceEpoch}',
+                        ));
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Receipt copied to clipboard!'),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        );
+                      },
                       icon: Icon(Icons.share, color: AppColors.primary, size: Responsive.w(20)),
                       label: CustomText.title(
                         'Share Receipt',

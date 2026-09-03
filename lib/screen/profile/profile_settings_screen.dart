@@ -7,9 +7,7 @@ import 'package:paynow/bloc/auth/auth_state.dart';
 import 'package:paynow/bloc/profile/profile_bloc.dart';
 import 'package:paynow/bloc/profile/profile_event.dart';
 import 'package:paynow/bloc/profile/profile_state.dart';
-import 'package:paynow/screen/auth/login_screen.dart';
-import 'package:paynow/screen/onboarding/link_bank_screen.dart';
-import 'package:paynow/screen/settings/card_details_screen.dart';
+import 'package:paynow/constants/route_constants.dart';
 import 'package:paynow/utils/app_colors.dart';
 import 'package:paynow/utils/responsive_helper.dart';
 import 'package:paynow/widget/custom_text.dart';
@@ -83,48 +81,63 @@ class ProfileSettingsScreen extends StatelessWidget {
                       children: [
                         SizedBox(height: Responsive.h(12)),
                         
-                        // Profile Header card
-                        Container(
-                          padding: EdgeInsets.all(Responsive.w(20.0)),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: Responsive.w(60),
-                                height: Responsive.h(60),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFACC15), // Yellow from designs
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), width: Responsive.w(1.5)),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    profile.name.isNotEmpty ? profile.name[0] : 'A',
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.black,
+                        // Profile Header card (Tappable to Edit)
+                        GestureDetector(
+                          onTap: () => _showEditProfileSheet(context, profile.name, profile.email),
+                          child: Container(
+                            padding: EdgeInsets.all(Responsive.w(20.0)),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: Responsive.w(60),
+                                  height: Responsive.h(60),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFACC15), // Yellow from designs
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), width: Responsive.w(1.5)),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      profile.name.isNotEmpty ? profile.name[0] : 'U',
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.black,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: Responsive.w(16)),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    CustomText.header(profile.name, fontSize: 18),
-                                    SizedBox(height: Responsive.h(4)),
-                                    CustomText.subtitle(displayPhone, fontSize: 13),
-                                    SizedBox(height: Responsive.h(2)),
-                                    CustomText.subtitle(displayUpiId, fontSize: 12, color: AppColors.primary),
-                                  ],
+                                SizedBox(width: Responsive.w(16)),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      CustomText.header(profile.name, fontSize: 18),
+                                      SizedBox(height: Responsive.h(4)),
+                                      CustomText.subtitle(displayPhone, fontSize: 13),
+                                      SizedBox(height: Responsive.h(2)),
+                                      CustomText.subtitle(displayUpiId, fontSize: 12, color: AppColors.primary),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.edit_outlined,
+                                    color: AppColors.primary,
+                                    size: 18,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         SizedBox(height: Responsive.h(24)),
@@ -137,14 +150,7 @@ class ProfileSettingsScreen extends StatelessWidget {
                           icon: Icons.account_balance,
                           title: 'Bank Accounts',
                           subtitle: 'Add or manage linked bank accounts',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const LinkBankScreen(isFromOnboarding: false),
-                              ),
-                            );
-                          },
+                          onTap: () => Navigator.pushNamed(context, RouteConstants.bankAccounts),
                         ),
                         SizedBox(height: Responsive.h(12)),
                         _buildNavigationItem(
@@ -152,14 +158,7 @@ class ProfileSettingsScreen extends StatelessWidget {
                           icon: Icons.credit_card,
                           title: 'Credit & Debit Cards',
                           subtitle: 'Manage card limits and lock state',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const CardDetailsScreen(),
-                              ),
-                            );
-                          },
+                          onTap: () => Navigator.pushNamed(context, RouteConstants.cardDetails),
                         ),
                         SizedBox(height: Responsive.h(24)),
 
@@ -526,6 +525,131 @@ class ProfileSettingsScreen extends StatelessWidget {
     );
   }
 
+  void _showEditProfileSheet(BuildContext context, String currentName, String currentEmail) {
+    final nameController = TextEditingController(text: currentName);
+    final emailController = TextEditingController(text: currentEmail);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: EdgeInsets.only(
+            left: Responsive.w(20),
+            right: Responsive.w(20),
+            top: Responsive.h(20),
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + Responsive.h(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.grayFont.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              SizedBox(height: Responsive.h(16)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomText.header('Edit Profile Details', fontSize: 18),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20, color: AppColors.grayFont),
+                    onPressed: () => Navigator.pop(sheetContext),
+                  ),
+                ],
+              ),
+              CustomText.body(
+                'Personalize your display name and email address.',
+                fontSize: 12,
+                color: AppColors.grayFont,
+              ),
+              SizedBox(height: Responsive.h(20)),
+              CustomText.title('Full Name', fontSize: 13),
+              SizedBox(height: Responsive.h(8)),
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your full name',
+                  filled: true,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: EdgeInsets.symmetric(horizontal: Responsive.w(14), vertical: Responsive.h(12)),
+                ),
+              ),
+              SizedBox(height: Responsive.h(16)),
+              CustomText.title('Email Address', fontSize: 13),
+              SizedBox(height: Responsive.h(8)),
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  hintText: 'e.g. user@paynow.com',
+                  filled: true,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: EdgeInsets.symmetric(horizontal: Responsive.w(14), vertical: Responsive.h(12)),
+                ),
+              ),
+              SizedBox(height: Responsive.h(24)),
+              SizedBox(
+                width: double.infinity,
+                height: Responsive.h(50),
+                child: ElevatedButton(
+                  onPressed: () {
+                    final newName = nameController.text.trim();
+                    final newEmail = emailController.text.trim();
+
+                    if (newName.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter your name'),
+                          backgroundColor: AppColors.errorRed,
+                        ),
+                      );
+                      return;
+                    }
+
+                    context.read<ProfileBloc>().add(UpdateProfileDetailsEvent(
+                          name: newName,
+                          email: newEmail.isNotEmpty ? newEmail : 'user@paynow.com',
+                        ));
+
+                    Navigator.pop(sheetContext);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Profile details updated successfully!'),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  child: CustomText.title('Save Changes', color: AppColors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -549,9 +673,9 @@ class ProfileSettingsScreen extends StatelessWidget {
                 context.read<AuthBloc>().add(const LogoutEvent());
                 
                 // Clear state and redirect to login screen
-                Navigator.pushAndRemoveUntil(
+                Navigator.pushNamedAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  RouteConstants.login,
                   (route) => false,
                 );
               },

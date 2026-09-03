@@ -11,12 +11,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ToggleDarkModeEvent>(_onToggleDarkMode);
     on<UpdateMpinEvent>(_onUpdateMpin);
     on<UpdateProfilePhoneEvent>(_onUpdateProfilePhone);
+    on<UpdateProfileDetailsEvent>(_onUpdateProfileDetails);
   }
 
   static ProfileLoaded _getInitialState() {
     final profile = HiveService.getUserProfile();
     return ProfileLoaded(
       name: profile.name,
+      email: profile.email,
       phone: profile.phone,
       upiId: profile.upiId,
       mpin: profile.mpin,
@@ -30,6 +32,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final profile = HiveService.getUserProfile();
     emit(ProfileLoaded(
       name: profile.name,
+      email: profile.email,
       phone: profile.phone,
       upiId: profile.upiId,
       mpin: profile.mpin,
@@ -37,6 +40,23 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       biometricsEnabled: profile.biometricsEnabled,
       darkModeEnabled: profile.darkModeEnabled,
     ));
+  }
+
+  void _onUpdateProfileDetails(UpdateProfileDetailsEvent event, Emitter<ProfileState> emit) {
+    if (state is ProfileLoaded) {
+      final current = state as ProfileLoaded;
+      final updated = current.copyWith(
+        name: event.name,
+        email: event.email,
+      );
+      emit(updated);
+
+      final profile = HiveService.getUserProfile();
+      HiveService.saveUserProfile(profile.copyWith(
+        name: event.name,
+        email: event.email,
+      ));
+    }
   }
 
   void _onUpdateProfilePhone(UpdateProfilePhoneEvent event, Emitter<ProfileState> emit) {
